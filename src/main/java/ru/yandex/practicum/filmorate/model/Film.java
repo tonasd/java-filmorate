@@ -1,20 +1,16 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.Duration;
 import java.time.LocalDate;
 
 @Getter
-@RequiredArgsConstructor
-@EqualsAndHashCode
+@Setter
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @ToString
-public class Film {
-    final private int id;
-    final private String name;
+public class Film extends Item {
     final private String description;
     final private LocalDate releaseDate;
     final private Duration duration;

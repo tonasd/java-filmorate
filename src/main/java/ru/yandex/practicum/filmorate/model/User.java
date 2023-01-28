@@ -6,13 +6,14 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
-@EqualsAndHashCode
+@AllArgsConstructor
 @ToString
-public class User {
-    private final int id;
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
+public class User extends Item {
+    @NonNull @EqualsAndHashCode.Include
     private final String email;
+    @NonNull
     private final String login;
-    private String name;
     private final LocalDate birthday;
+
 }
