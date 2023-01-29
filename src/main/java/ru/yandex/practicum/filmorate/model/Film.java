@@ -8,10 +8,15 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@ToString
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
+@ToString(callSuper = true)
+@Builder(toBuilder = true)
 public class Film extends Item {
-    final private String description;
-    final private LocalDate releaseDate;
-    final private Duration duration;
+    @NonNull @EqualsAndHashCode.Include
+    final private String name;
+    private String description;
+    @EqualsAndHashCode.Include
+    private LocalDate releaseDate;
+    @NonNull
+    private Duration duration;
 }

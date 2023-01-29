@@ -4,10 +4,8 @@ import lombok.*;
 
 @Getter
 @Setter
-@EqualsAndHashCode
+@ToString
 public abstract class Item {
     @EqualsAndHashCode.Exclude
     protected int id;
-    protected String name;
-
 }

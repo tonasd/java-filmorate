@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -11,13 +12,23 @@ import java.time.LocalDate;
 @RequestMapping("/users")
 public class UserController extends Controller<User> {
     @Override
-    protected boolean isCorrect(User user) {
+    protected boolean isCorrect(@NonNull User user) {
         String exceptionText = "";
-        if (user.getLogin().isBlank()) {
-            exceptionText = "Login must have not space characters";
+
+        if (user.getEmail().isBlank() || !user.getEmail().contains("@")) {
+            exceptionText = "Email " + user.getEmail() + " is not correct";
+        }
+
+        if (user.getLogin().isEmpty()) {
+            exceptionText += (exceptionText.isEmpty() ? "" : "\n")
+                    + "Login mustn't be empty";
+        }
+        if (user.getLogin().contains(" ")) {
+            exceptionText += (exceptionText.isEmpty() ? "" : "\n")
+                    + "Login must have not space characters";
         }
         if (user.getBirthday() != null && user.getBirthday().isAfter(LocalDate.now())) {
-            exceptionText += exceptionText.isEmpty() ? "" : "\n"
+            exceptionText += (exceptionText.isEmpty() ? "" : "\n")
                     + "User birthday cannot be later than current date";
         }
 
@@ -27,7 +38,7 @@ public class UserController extends Controller<User> {
             throw exception;
         }
 
-        if (user.getName().isBlank()) user.setName(user.getLogin());
+        if (user.getName() == null || user.getName().isBlank()) user.setName(user.getLogin());
         return true;
     }
 

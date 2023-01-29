@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Item;
@@ -17,11 +16,11 @@ abstract class Controller <T extends Item> {
     private int nextId = 1;
 
     @PostMapping
-    public T create(@NonNull @RequestBody T item) {
+    public T create(@RequestBody T item) {
         log.info("Post {} request", item.getClass().getSimpleName());
         if (isCorrect(item)) {
             item.setId(nextId++);
-            log.debug("Created:", item);
+            log.debug("Created: {}", item);
             items.add(item);
         }
         return item;
@@ -29,10 +28,10 @@ abstract class Controller <T extends Item> {
     }
 
     @PutMapping
-    public T update(@NonNull @RequestBody T item) {
+    public T update(@RequestBody T item) {
         log.info("Put {} request", item.getClass().getSimpleName());
         if (isCorrect(item)) {
-            log.debug("Updated:", item);
+            log.debug("Updated: {}", item);
             items.add(item);
         }
         return item;
