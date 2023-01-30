@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.time.Duration;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,7 +17,7 @@ class FilmControllerTest {
     @BeforeEach
     void setUp() {
         controller = new FilmController();
-        expected = new Film("Snatch", "A film of Guy Ritchie", LocalDate.of(2000, 5, 10), Duration.ofMinutes(104));
+        expected = new Film("Snatch", "A film of Guy Ritchie", LocalDate.of(2000, 5, 10), 104);
 
     }
 
@@ -50,9 +49,9 @@ class FilmControllerTest {
                 .build();
         assertThrows(ValidationException.class, ()-> controller.isCorrect(filmWithReleaseDateBeforeCinemaEra));
 
-        Film filmWithZeroDuration = expected.toBuilder().duration(Duration.ZERO).build();
+        Film filmWithZeroDuration = expected.toBuilder().duration(0).build();
         assertThrows(ValidationException.class, ()-> controller.isCorrect(filmWithZeroDuration));
-        Film filmWithNegativeDuration = expected.toBuilder().duration(Duration.ZERO.minusSeconds(1)).build();
+        Film filmWithNegativeDuration = expected.toBuilder().duration(-1).build();
         assertThrows(ValidationException.class, ()-> controller.isCorrect(filmWithNegativeDuration));
 
     }

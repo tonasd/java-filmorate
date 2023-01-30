@@ -30,7 +30,7 @@ public class FilmController extends Controller<Film> {
             exceptionText += (exceptionText.isEmpty() ? "" : "\n")
                     + "Date of the film release is incorrect(before the very first screening)";
         }
-        if (film.getDuration().isNegative() || film.getDuration().isZero()) {
+        if (film.getDuration() <= 0) {
             exceptionText += (exceptionText.isEmpty() ? "" : "\n")
                     + "Duration of a film must be positive";
         }

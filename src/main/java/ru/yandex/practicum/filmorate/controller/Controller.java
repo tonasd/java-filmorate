@@ -36,6 +36,7 @@ abstract class Controller <T extends Item> {
         isCorrect(item);
         if (items.containsKey(item.getId())) {
             log.debug("Updated: {}", item);
+            items.replace(item.getId(), item);
         } else {
 
             ValidationException exception = new ValidationException(String.format("%s with id %s doesn't exist",
@@ -44,7 +45,7 @@ abstract class Controller <T extends Item> {
             throw exception;
         }
 
-        return items.replace(item.getId(), item);
+        return item;
     }
 
     @GetMapping

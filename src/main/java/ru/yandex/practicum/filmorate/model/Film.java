@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.*;
 
-import java.time.Duration;
 import java.time.LocalDate;
 
 @Getter
@@ -17,6 +16,5 @@ public class Film extends Item {
     private String description;
     @EqualsAndHashCode.Include
     private LocalDate releaseDate;
-    @NonNull
-    private Duration duration;
+    private int duration;
 }
