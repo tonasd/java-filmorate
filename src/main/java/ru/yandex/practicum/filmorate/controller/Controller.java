@@ -50,8 +50,9 @@ abstract class Controller <T extends Item> {
 
     @GetMapping
     protected List<T> getAll() {
-        log.info("Get all {} request", this.getClass().getGenericSuperclass());
-        return List.copyOf(items.values());
+        final List<T> res = List.copyOf(items.values());
+        log.info("Get all request. Given {} objects." , res.size());
+        return res;
     }
 
     abstract protected boolean isCorrect(T item);
