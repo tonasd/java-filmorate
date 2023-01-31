@@ -15,16 +15,16 @@ import java.util.Map;
 @Slf4j
 abstract class Controller <T extends Item> {
 
-    private final Map<Integer,T> items = new HashMap<>();
-    private int nextInt = 1;
+    private final Map<Long,T> items = new HashMap<>();
+    private long nextId = 1;
 
     @PostMapping
     protected T create(@RequestBody T item) {
         log.info("Post {} request", item.getClass().getSimpleName());
         if (isCorrect(item)) {
-            item.setId(nextInt);
+            item.setId(nextId);
             log.debug("Created: {}", item);
-            items.put(nextInt++, item);
+            items.put(nextId++, item);
         }
         return item;
 

@@ -7,5 +7,5 @@ import lombok.*;
 @ToString
 public abstract class Item {
     @EqualsAndHashCode.Exclude
-    protected int id;
+    protected long id;
 }
