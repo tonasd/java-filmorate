@@ -11,8 +11,8 @@ import java.time.LocalDate;
 @ToString(callSuper = true)
 @Builder(toBuilder = true)
 public class Film extends Item {
-    @NonNull @EqualsAndHashCode.Include
-    final private String name;
+    @NonNull
+    private String name;
     private String description;
     @EqualsAndHashCode.Include
     private LocalDate releaseDate;

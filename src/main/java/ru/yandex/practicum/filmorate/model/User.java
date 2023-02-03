@@ -13,9 +13,9 @@ import java.time.LocalDate;
 public class User extends Item {
     @NonNull
     @EqualsAndHashCode.Include
-    private final String email;
+    private String email;
     @NonNull
-    private final String login;
+    private String login;
     private String name;
     private LocalDate birthday;
 }
