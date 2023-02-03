@@ -8,11 +8,9 @@ import java.time.LocalDate;
 @Setter
 @AllArgsConstructor
 @ToString(callSuper = true)
-@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Builder(toBuilder = true)
 public class User extends Item {
     @NonNull
-    @EqualsAndHashCode.Include
     private String email;
     @NonNull
     private String login;

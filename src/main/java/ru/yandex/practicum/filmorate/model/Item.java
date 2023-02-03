@@ -6,6 +6,5 @@ import lombok.*;
 @Setter
 @ToString
 public abstract class Item {
-    @EqualsAndHashCode.Exclude
     protected long id;
 }
