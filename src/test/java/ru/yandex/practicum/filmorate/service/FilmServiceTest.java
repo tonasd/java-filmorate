@@ -79,8 +79,7 @@ class FilmServiceTest {
         assertEquals(1, service.getAll().get(0).timesLiked());
     }
 
-    @Test
-    void removeLike() {
+    private void removeLike() {
         service.addLike(expected.getId(), user.getId());
         assertEquals(1, expected.timesLiked());
         service.removeLike(expected.getId(), user.getId());
@@ -89,6 +88,7 @@ class FilmServiceTest {
 
     @Test
     void getPopular() {
+        removeLike();
         User[] users = new User[20];
         for (int i = 1; i < 20; ++i) {
             Film f = new Film(expected);
