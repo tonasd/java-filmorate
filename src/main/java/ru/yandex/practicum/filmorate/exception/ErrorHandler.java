@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.Map;
 
-@RestControllerAdvice("ru/yandex/practicum/filmorate")
+@RestControllerAdvice("ru.yandex.practicum.filmorate")
 public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
