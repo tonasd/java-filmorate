@@ -34,6 +34,10 @@ public class UserService {
         return user;
     }
 
+    public User get(long userId) {
+        return storage.get(userId);
+    }
+
     public List<User> getAll() {
         return storage.getAll();
     }
@@ -51,10 +55,19 @@ public class UserService {
         friend.getFriends().remove(userId);
     }
 
-    public List<Long> commonFriends(long userId, long friendId) {
+    public List<User> getFriends(long userId) {
+        final User user = storage.get(userId);
+        return user.getFriends().stream()
+                .map(storage::get).collect(Collectors.toList());
+    }
+
+    public List<User> commonFriends(long userId, long friendId) {
         Set<Long> userFriends = storage.get(userId).getFriends();
         Set<Long> friendsFriends = storage.get(friendId).getFriends();
-        return userFriends.stream().filter(friendsFriends::contains).collect(Collectors.toUnmodifiableList());
+        return userFriends.stream()
+                .filter(friendsFriends::contains)
+                .map(storage::get)
+                .collect(Collectors.toUnmodifiableList());
     }
 
     private void validate(@NonNull User user) {
