@@ -9,6 +9,7 @@ import java.util.Set;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @ToString(callSuper = true)
 public class Film extends Item {
     @NonNull
@@ -17,7 +18,7 @@ public class Film extends Item {
     private LocalDate releaseDate;
     private int duration;
     @ToString.Exclude
-    private Set<Long> usersLiked;
+    private Set<Long> usersLiked = new HashSet<>();
 
     public Film(@NonNull String name, String description, LocalDate releaseDate, int duration) {
         this(name, description, releaseDate, duration, new HashSet<>());
@@ -25,11 +26,6 @@ public class Film extends Item {
     public Film(Film film) {
         this(film.name, film.description, film.releaseDate, film.duration, film.usersLiked);
         this.id = film.id;
-    }
-
-    @ToString.Include
-    private String usersLiked() {
-        return String.format("Was liked %d times", usersLiked.size());
     }
 
     @ToString.Include(name = "Times liked")

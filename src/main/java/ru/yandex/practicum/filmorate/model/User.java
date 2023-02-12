@@ -9,6 +9,7 @@ import java.util.Set;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @ToString(callSuper = true)
 public class User extends Item {
     @NonNull
@@ -17,6 +18,8 @@ public class User extends Item {
     private String login;
     private String name;
     private LocalDate birthday;
+    @ToString.Exclude
+    private Set<Long> friends = new HashSet<>();
 
     public User(@NonNull String email, @NonNull String login, String name, LocalDate birthday) {
         this(email, login, name, birthday, new HashSet<>());
@@ -26,9 +29,6 @@ public class User extends Item {
         this(user.email, user.login, user.name, user.birthday, user.friends);
         this.id = user.id;
     }
-
-    @ToString.Exclude
-    @Singular("addFriendId") private Set<Long> friends;
 
     @ToString.Include(name = "friendsQuantity")
     private String friends() {

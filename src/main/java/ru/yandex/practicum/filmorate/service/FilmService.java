@@ -38,6 +38,10 @@ public class FilmService {
         return film;
     }
 
+    public Film get(long filmId) {
+        return filmStorage.get(filmId);
+    }
+
     public List<Film> getAll() {
         return filmStorage.getAll();
     }
