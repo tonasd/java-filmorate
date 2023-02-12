@@ -44,7 +44,7 @@ public class FilmController{
         return film;
     }
 
-    @PostMapping(path = "/{id}/like/{userId}")
+    @PutMapping(path = "/{id}/like/{userId}")
     public void addLike(@PathVariable(name = "id") @Positive Long filmId, @PathVariable @Positive Long userId) {
         service.addLike(filmId, userId);
         log.info("Film {} is liked by user {}", filmId, userId);
