@@ -24,7 +24,8 @@ public class Film extends Item {
         this(name, description, releaseDate, duration, new HashSet<>());
     }
     public Film(Film film) {
-        this(film.name, film.description, film.releaseDate, film.duration, film.usersLiked);
+        this(film.name, film.description, film.releaseDate, film.duration);
+        this.usersLiked = new HashSet<>(film.usersLiked);
         this.id = film.id;
     }
 
