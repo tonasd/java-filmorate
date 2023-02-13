@@ -2,6 +2,10 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.*;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -12,10 +16,14 @@ import java.util.Set;
 @NoArgsConstructor
 @ToString(callSuper = true)
 public class Film extends Item {
-    @NonNull
+    @NotNull
+    @NotEmpty(message = "Film's name cannot be empty")
     private String name;
+    @NotNull @Size(max = 200)
     private String description;
+    @NotNull
     private LocalDate releaseDate;
+    @Positive
     private int duration;
     @ToString.Exclude
     private transient Set<Long> usersLiked = new HashSet<>();

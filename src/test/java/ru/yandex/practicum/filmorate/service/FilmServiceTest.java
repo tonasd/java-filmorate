@@ -9,17 +9,22 @@ import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
+import javax.validation.Validator;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class FilmServiceTest {
-   static FilmService service;
+    static FilmService service;
     static UserService userService;
     static Film expected;
-   static User user;
+    static User user;
+    static Validator validator;
 
     @BeforeAll
     static void setUp() {
@@ -29,7 +34,7 @@ class FilmServiceTest {
         user = new User("user@email.com", "login", "name", LocalDate.now());
         userService.create(user);
         expected = new Film("Snatch", "A film of Guy Ritchie", LocalDate.of(2000, 5, 10), 104);
-
+        validator = Validation.buildDefaultValidatorFactory().getValidator();
     }
 
 
@@ -42,11 +47,11 @@ class FilmServiceTest {
 
         Film filmWithEmptyName = new Film(expected);
         filmWithEmptyName.setName("");
-        assertThrows(ValidationException.class, () -> service.create(filmWithEmptyName));
+        assertThrows(ConstraintViolationException.class, () -> validate(filmWithEmptyName));
 
         Film filmWithDescriptionLongerThan200 = new Film(expected);
         filmWithDescriptionLongerThan200.setDescription("a".repeat(201));
-        assertThrows(ValidationException.class, () -> service.create(filmWithDescriptionLongerThan200));
+        assertThrows(ConstraintViolationException.class, () -> validate(filmWithDescriptionLongerThan200));
 
         Film filmWithReleaseDateBeforeCinemaEra = new Film(expected);
         filmWithReleaseDateBeforeCinemaEra.setReleaseDate(LocalDate.of(1895, 12, 27));
@@ -54,9 +59,9 @@ class FilmServiceTest {
 
         Film filmWithWrongDuration = new Film(expected);
         filmWithWrongDuration.setDuration(0);
-        assertThrows(ValidationException.class, () -> service.create(filmWithWrongDuration));
+        assertThrows(ConstraintViolationException.class, () -> validate(filmWithWrongDuration));
         filmWithWrongDuration.setDuration(-1);
-        assertThrows(ValidationException.class, () -> service.create(filmWithWrongDuration));
+        assertThrows(ConstraintViolationException.class, () -> validate(filmWithWrongDuration));
     }
 
     @Test
@@ -80,7 +85,8 @@ class FilmServiceTest {
         assertEquals(1, service.getAll().get(0).timesLiked());
     }
 
-    private void removeLike() {
+    @Test
+    public void removeLike() {
         service.addLike(expected.getId(), user.getId());
         assertEquals(1, expected.timesLiked());
         service.removeLike(expected.getId(), user.getId());
@@ -89,7 +95,6 @@ class FilmServiceTest {
 
     @Test
     void getPopular() {
-        removeLike();
         User[] users = new User[20];
         for (int i = 1; i < 20; ++i) {
             Film f = new Film(expected);
@@ -107,7 +112,14 @@ class FilmServiceTest {
         List<Film> mostLiked = service.getPopular(5);
         assertEquals(5, mostLiked.size());
         for (int i = 0; i < 5; ++i) {
-            assertEquals(19 - i, mostLiked.get(i).timesLiked());
+            assertEquals(20 - i, mostLiked.get(i).timesLiked());
+        }
+    }
+
+    private void validate(Film film) {
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
         }
     }
 }

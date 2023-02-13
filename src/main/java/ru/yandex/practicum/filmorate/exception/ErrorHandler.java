@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import javax.validation.ConstraintViolationException;
 import java.util.Map;
 
 @Slf4j
@@ -18,13 +17,6 @@ public class ErrorHandler {
     protected Map<String, String> handleNotFound(final ItemNotFoundException e) {
         log.warn(e.toString());
         return Map.of("Could not find", e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    protected Map<String, String> handle(final ConstraintViolationException e) {
-        log.warn(e.toString());
-        return Map.of(e.getConstraintViolations().toString(), e.getMessage());
     }
 
     @ExceptionHandler
@@ -43,8 +35,8 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    protected String handleOtherErrors(final Throwable e) {
+    protected Map<String, String> handleOtherErrors(final Throwable e) {
         log.warn(e.toString());
-        return "Error description: " + e.getMessage();
+        return Map.of("Unknown error", e.getMessage());
     }
 }
