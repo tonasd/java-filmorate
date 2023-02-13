@@ -65,7 +65,7 @@ public class UserService {
                 .collect(Collectors.toUnmodifiableList());
     }
 
-    public void validate( User user) {
+    public void validate(User user) {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }

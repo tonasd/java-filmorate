@@ -2,28 +2,35 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.exception.ItemNotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Validated
 class UserServiceTest {
 
     static UserService service;
     static User user;
     static User user2;
+    static Validator validator;
 
     @BeforeAll
     static void setUp() {
-        service = new UserService(new InMemoryUserStorage());
+        service = new UserService(new InMemoryUserStorage()) ;
         user = new User("user@mail.ru", "login", "Aksinya", LocalDate.of(1990, 4, 1));
         user2 = new User("mavra@mail.net", "mavralogin", "Mavra", LocalDate.of(1990, 2, 11));
-
+        validator = Validation.buildDefaultValidatorFactory().getValidator();
     }
 
     @Test
@@ -35,20 +42,20 @@ class UserServiceTest {
 
         User userWithWrongEmail = new User(user);
         userWithWrongEmail.setEmail("without at");
-        assertThrows(ValidationException.class, () -> service.create(userWithWrongEmail));
+        assertThrows(ConstraintViolationException.class, () -> validate(userWithWrongEmail));
         userWithWrongEmail.setEmail("");
-        assertThrows(ValidationException.class, () -> service.create(userWithWrongEmail));
+        assertThrows(ConstraintViolationException.class, () -> validate(userWithWrongEmail));
 
         User userWrongLogin = new User(user);
         userWrongLogin.setLogin("");
-        assertThrows(ValidationException.class, () -> service.create(userWrongLogin));
+        assertThrows(ConstraintViolationException.class, () -> validate(userWrongLogin));
         userWrongLogin.setLogin("2+2= 4");
-        assertThrows(ValidationException.class, () -> service.create(userWrongLogin));
+        assertThrows(ConstraintViolationException.class, () -> validate(userWrongLogin));
 
         User userWrongBirthday = new User(user);
         final LocalDate dateInFuture = LocalDate.now().plusDays(1);
         userWrongBirthday.setBirthday(dateInFuture);
-        assertThrows(ValidationException.class, () -> service.create(userWrongBirthday));
+        assertThrows(ConstraintViolationException.class, () -> validate(userWrongBirthday));
     }
 
     @Test
@@ -64,6 +71,7 @@ class UserServiceTest {
     @Test
     void update() {
         user.setBirthday(LocalDate.now());
+        assertDoesNotThrow(() -> validate(user));
         assertDoesNotThrow(() -> service.update(user));
 
         User beforeUpdate = service.getAll().get(0);
@@ -99,7 +107,12 @@ class UserServiceTest {
         assertTrue(user3.getFriends().containsAll(user2.getFriends()));
     }
 
-
+    private void validate (User user) {
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
+    }
 
 
 }
