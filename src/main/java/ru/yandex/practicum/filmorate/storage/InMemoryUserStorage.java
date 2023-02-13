@@ -14,7 +14,7 @@ class InMemoryUserStorage implements UserStorage {
     @Override
     public User get(long userId) {
         if (!users.containsKey(userId)) {
-            throw new ItemNotFoundException(String.format("Film %d not found", userId));
+            throw new ItemNotFoundException(String.format("User %d not found", userId));
         }
         return users.get(userId);
     }

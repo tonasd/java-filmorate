@@ -18,7 +18,7 @@ public class Film extends Item {
     private LocalDate releaseDate;
     private int duration;
     @ToString.Exclude
-    private Set<Long> usersLiked = new HashSet<>();
+    private transient Set<Long> usersLiked = new HashSet<>();
 
     public Film(@NonNull String name, String description, LocalDate releaseDate, int duration) {
         this(name, description, releaseDate, duration, new HashSet<>());

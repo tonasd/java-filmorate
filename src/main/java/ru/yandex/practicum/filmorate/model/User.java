@@ -19,7 +19,7 @@ public class User extends Item {
     private String name;
     private LocalDate birthday;
     @ToString.Exclude
-    private Set<Long> friends = new HashSet<>();
+    private transient Set<Long> friends = new HashSet<>();
 
     public User(@NonNull String email, @NonNull String login, String name, LocalDate birthday) {
         this(email, login, name, birthday, new HashSet<>());
