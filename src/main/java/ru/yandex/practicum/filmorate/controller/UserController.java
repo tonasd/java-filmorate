@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
@@ -16,7 +17,7 @@ public class UserController{
     private final UserService service;
 
     @PostMapping
-    public User create(@RequestBody User user) {
+    public User create(@RequestBody @Valid User user) {
         service.create(user);
         log.info("Created user: {}", user);
         return user;

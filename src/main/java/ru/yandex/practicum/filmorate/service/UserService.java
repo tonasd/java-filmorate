@@ -1,19 +1,14 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -70,32 +65,9 @@ public class UserService {
                 .collect(Collectors.toUnmodifiableList());
     }
 
-    private void validate(@NonNull User user) {
-        String exceptionText = "";
-
-        if (user.getEmail().isBlank() || !user.getEmail().contains("@")) {
-            exceptionText = "Email " + user.getEmail() + " is not correct";
+    public void validate( User user) {
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
         }
-
-        if (user.getLogin().isEmpty()) {
-            exceptionText += (exceptionText.isEmpty() ? "" : "\n")
-                    + "Login mustn't be empty";
-        }
-        if (user.getLogin().contains(" ")) {
-            exceptionText += (exceptionText.isEmpty() ? "" : "\n")
-                    + "Login must have not space characters";
-        }
-        if (user.getBirthday() != null && user.getBirthday().isAfter(LocalDate.now())) {
-            exceptionText += (exceptionText.isEmpty() ? "" : "\n")
-                    + "User birthday cannot be later than current date";
-        }
-
-        if (!exceptionText.isEmpty()) {
-            ValidationException exception = new ValidationException(exceptionText);
-            log.warn("", exception);
-            throw exception;
-        }
-
-        if (user.getName() == null || user.getName().isBlank()) user.setName(user.getLogin());
     }
 }
