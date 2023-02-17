@@ -1,46 +1,65 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
-import java.time.LocalDate;
-import java.time.Month;
+import javax.validation.Valid;
+import java.util.List;
 
 @Slf4j
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/films")
-public class FilmController extends Controller<Film> {
+public class FilmController{
+    private final FilmService service;
 
-    @Override
-    protected boolean isCorrect(@NonNull Film film) {
-        String exceptionText = "";
-        if (film.getName().isBlank()) {
-            exceptionText += "Film's name cannot be empty";
-        }
-        if (film.getDescription() != null && film.getDescription().length() > 200) {
-            exceptionText += (exceptionText.isEmpty() ? "" : "\n")
-                    + "Film description should be not longer than 200 characters";
-        }
-        if (film.getReleaseDate() != null
-                && film.getReleaseDate().isBefore(LocalDate.of(1895, Month.DECEMBER, 28))) {
-            exceptionText += (exceptionText.isEmpty() ? "" : "\n")
-                    + "Date of the film release is incorrect(before the very first screening)";
-        }
-        if (film.getDuration() <= 0) {
-            exceptionText += (exceptionText.isEmpty() ? "" : "\n")
-                    + "Duration of a film must be positive";
-        }
+    @PostMapping
+    public Film create(@RequestBody @Valid Film film) {
+        service.create(film);
+        log.info("Created film: {}", film);
+        return film;
+    }
 
-        if (!exceptionText.isEmpty()) {
-            ValidationException exception = new ValidationException(exceptionText);
-            log.warn("", exception);
-            throw exception;
-        }
+    @PutMapping
+    public Film update(@RequestBody @Valid Film film) {
+        service.update(film);
+        log.info("Updated film: {}", film);
+        return film;
+    }
 
-        return true;
+    @GetMapping
+    public List<Film> getAll() {
+        final List<Film> res = service.getAll();
+        log.info("Get all films request. Given {} objects.", res.size());
+        return res;
+    }
+
+    @GetMapping(value = "/{id}")
+    public Film getFilm(@PathVariable Long id) {
+        final Film film = service.get(id);
+        log.info("Given film: {}", film);
+        return film;
+    }
+
+    @PutMapping(path = "/{id}/like/{userId}")
+    public void addLike(@PathVariable(name = "id") Long filmId, @PathVariable Long userId) {
+        service.addLike(filmId, userId);
+        log.info("Film {} is liked by user {}", filmId, userId);
+    }
+
+    @DeleteMapping(path = "/{id}/like/{userId}")
+    public void removeLike(@PathVariable(name = "id") Long filmId, @PathVariable Long userId) {
+        service.removeLike(filmId, userId);
+        log.info("Film {} is unliked by user {}", filmId, userId);
+    }
+
+    @GetMapping(path = "/popular")
+    public List<Film> getPopular(@RequestParam(required = false, defaultValue = "10", value = "count") Integer size) {
+        final List<Film> popularList = service.getPopular(size);
+        log.info("Get {} popular films request. Given {} films", size, popularList.size());
+        return popularList;
     }
 }
