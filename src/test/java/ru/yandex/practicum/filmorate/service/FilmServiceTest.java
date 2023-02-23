@@ -14,6 +14,7 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -33,7 +34,13 @@ class FilmServiceTest {
         userService = new UserService(userStorage);
         user = new User("user@email.com", "login", "name", LocalDate.now());
         userService.create(user);
-        expected = new Film("Snatch", "A film of Guy Ritchie", LocalDate.of(2000, 5, 10), 104);
+        expected = new Film("Snatch",
+                "A film of Guy Ritchie",
+                LocalDate.of(2000, 5, 10),
+                104,
+                new HashSet<>(),
+                "comedy",
+                "R");
         validator = Validation.buildDefaultValidatorFactory().getValidator();
     }
 
