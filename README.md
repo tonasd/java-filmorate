@@ -1,6 +1,6 @@
 # java-filmorate
 
-[ER-diagramm](Filmorate ER-diagram.jpg)
+[ER-diagramm](https://github.com/tonasd/java-filmorate/blob/DB-creation/Filmorate%20ER-diagram.jpg)
 
 Requets exmples for DB
 
