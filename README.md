@@ -6,50 +6,65 @@ Requets exmples for DB
 
 1. Get all users
 ```
-SELECT *
-FROM user;
+SELECT user_id,
+       email,
+       login,
+       name,
+       birthday
+FROM users;
 ```
 
 2. Get all films
 ```
-SELECT *
-FROM film;
+SELECT film_id,
+       name,
+       description,
+       rlease_date,
+       duration,
+       ratings.rating_block
+FROM films
+LEFT JOIN ratings ON films.rating_id = ratings.rating_id;
 ```
 
 3. Top n films
 ```
-SELECT *
-FROM film
-WHERE id IN (SELECT film_id
-            FROM likes
-            GROUP BY film_id
-            ORDER BY COUNT(user_id) DESC
-            LIMIT n);
+SELECT film_id,
+       name,
+       description,
+       rlease_date,
+       duration,
+       ratings.rating_block
+FROM films
+LEFT JOIN likes ON films.film_id = likes.film_id
+LEFT JOIN ratings ON films.rating_id = ratings.rating_id;
+GROUP BY films.film_id
+ORDER BY films.film_id DESC
+LIMIT n;
 ```
 
-4. Get common friends id_1 and id_2
+4. Get common friends id and other_id
 ```
-WHITH friends_user_id_1 AS (SELECT user_id_request_from AS id
+SELECT user_id,
+       email,
+       login,
+       name,
+       birthday
+FROM users
+WHERE user_id IN ((SELECT user_id_request_from AS user_id
             FROM friends
-            WHERE user_id_request_to = id_1
+            WHERE user_id_request_to = id
             UNION
-            SELECT user_id_request_to AS id
+            SELECT user_id_request_to AS user_id
             FROM friends
-            WHERE user_id_request_from = id_1),
-       friends_user_id_2 AS (SELECT user_id_request_from AS id
+            WHERE user_id_request_from = id)
+            INTERSECT
+            (SELECT user_id_request_from AS user_id
             FROM friends
-            WHERE user_id_request_to = id_2
+            WHERE user_id_request_to = other_id
             UNION
-            SELECT user_id_request_to AS id
+            SELECT user_id_request_to AS user_id
             FROM friends
-            WHERE user_id_request_from = id_2) 
-                        
-
-SELECT *
-FROM user
-WHERE id IN (SELECT * 
-             FROM friends_user_id_1
-             INNER JOIN frinds_user_id_2 ON friends_user_id_1.id = friends_user_id_2.id);
+            WHERE user_id_request_from = other_id));
 ```
                     
 
