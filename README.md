@@ -67,5 +67,3 @@ WHERE user_id IN ((SELECT user_id_request_from AS user_id
             WHERE user_id_request_from = other_id));
 ```
                     
-
-
