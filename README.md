@@ -38,7 +38,7 @@ FROM films
 LEFT JOIN likes ON films.film_id = likes.film_id
 LEFT JOIN ratings ON films.rating_id = ratings.rating_id;
 GROUP BY films.film_id
-ORDER BY films.film_id DESC
+ORDER BY COUNT(likes.user_id) DESC
 LIMIT n;
 ```
 
@@ -66,4 +66,8 @@ WHERE user_id IN ((SELECT user_id_request_from AS user_id
             FROM friends
             WHERE user_id_request_from = other_id));
 ```
-                    
+5. Add user
+```
+INSERT INTO users(email, login, name, birthday)
+VALUES (*/in the same order/*);
+```
