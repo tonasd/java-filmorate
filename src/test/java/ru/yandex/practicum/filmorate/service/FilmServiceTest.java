@@ -32,7 +32,7 @@ class FilmServiceTest {
         UserStorage userStorage = new InMemoryUserStorage();
         service = new FilmService(new InMemoryFilmStorage(), userStorage);
         userService = new UserService(userStorage);
-        user = new User("user@email.com", "login", "name", LocalDate.now());
+        user = new User("user@email.com", "login", "name", LocalDate.now(), new HashSet<>());
         userService.create(user);
         expected = new Film("Snatch",
                 "A film of Guy Ritchie",
