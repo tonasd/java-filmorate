@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -15,25 +16,30 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(callSuper = true)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Film extends Item {
     @NotNull
     @NotEmpty(message = "Film's name cannot be empty")
-    private String name;
+    String name;
     @NotNull @Size(max = 200)
-    private String description;
+    String description;
     @NotNull
-    private LocalDate releaseDate;
+    LocalDate releaseDate;
     @Positive
-    private int duration;
+    int duration;
     @ToString.Exclude
-    private transient Set<Long> usersLiked = new HashSet<>();
+    transient Set<Long> usersLiked = new HashSet<>();
+    String genre;
+    String rating; // MPA rating
 
-    public Film(@NonNull String name, String description, LocalDate releaseDate, int duration) {
-        this(name, description, releaseDate, duration, new HashSet<>());
-    }
     public Film(Film film) {
-        this(film.name, film.description, film.releaseDate, film.duration);
-        this.usersLiked = new HashSet<>(film.usersLiked);
+        this(film.name,
+                film.description,
+                film.releaseDate,
+                film.duration,
+                new HashSet<>(film.usersLiked),
+                film.genre,
+                film.rating);
         this.id = film.id;
     }
 

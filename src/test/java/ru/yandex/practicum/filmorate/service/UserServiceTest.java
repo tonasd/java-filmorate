@@ -12,6 +12,7 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -28,8 +29,16 @@ class UserServiceTest {
     @BeforeAll
     static void setUp() {
         service = new UserService(new InMemoryUserStorage()) ;
-        user = new User("user@mail.ru", "login", "Aksinya", LocalDate.of(1990, 4, 1));
-        user2 = new User("mavra@mail.net", "mavralogin", "Mavra", LocalDate.of(1990, 2, 11));
+        user = new User("user@mail.ru",
+                "login",
+                "Aksinya",
+                LocalDate.of(1990, 4, 1),
+                new HashSet<>());
+        user2 = new User("mavra@mail.net",
+                "mavralogin",
+                "Mavra",
+                LocalDate.of(1990, 2, 11),
+                new HashSet<>());
         validator = Validation.buildDefaultValidatorFactory().getValidator();
     }
 
