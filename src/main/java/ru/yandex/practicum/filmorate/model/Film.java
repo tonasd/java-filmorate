@@ -29,6 +29,7 @@ public class Film extends Item {
     int duration;
     @ToString.Exclude
     transient Set<Long> usersLiked = new HashSet<>();
+    @NotNull
     String genre;
     String rating; // MPA rating
 
