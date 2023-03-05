@@ -4,7 +4,10 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.ItemNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public
@@ -25,8 +28,8 @@ class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public void put(User user) {
-        users.put(user.getId(), user);
+    public User put(User user) {
+        return users.put(user.getId(), user);
     }
 
     @Override

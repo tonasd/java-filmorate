@@ -8,7 +8,9 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.PastOrPresent;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -35,8 +37,28 @@ public class User extends Item {
         this.id = user.id;
     }
 
+    public User(long id,String email, String login, String name, LocalDate birthday) {
+        this.id = id;
+        this.email = email;
+        this.login = login;
+        this.name = name;
+        this.birthday = birthday;
+    }
+
     @ToString.Include(name = "friendsQuantity")
     private String friends() {
         return String.valueOf(friends.size());
+    }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> values = new HashMap<>();
+        values.put("email", this.email);
+        values.put("login", this.login);
+        values.put("name", this.name);
+        values.put("birthday", this.birthday);
+        if(this.id != 0) {
+            values.put("user_id", this.id);
+        }
+        return values;
     }
 }

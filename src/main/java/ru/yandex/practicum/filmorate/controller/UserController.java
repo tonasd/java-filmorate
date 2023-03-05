@@ -18,14 +18,14 @@ public class UserController{
 
     @PostMapping
     public User create(@RequestBody @Valid User user) {
-        service.create(user);
+        user = service.create(user);
         log.info("Created user: {}", user);
         return user;
     }
 
     @PutMapping
     public User update(@RequestBody @Valid User user) {
-        service.update(user);
+        user = service.update(user);
         log.info("Updated user: {}", user);
         return user;
     }
