@@ -9,9 +9,7 @@ import javax.validation.constraints.PastOrPresent;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -29,11 +27,9 @@ public class User extends Item {
     String name;
     @PastOrPresent(message = "cannot be later than current date")
     LocalDate birthday;
-    @ToString.Exclude
-    private transient Set<Long> friends = new HashSet<>();
 
     public User(User user) {
-        this(user.email, user.login, user.name, user.birthday, new HashSet<>(user.friends));
+        this(user.email, user.login, user.name, user.birthday);
         this.id = user.id;
     }
 
@@ -43,11 +39,6 @@ public class User extends Item {
         this.login = login;
         this.name = name;
         this.birthday = birthday;
-    }
-
-    @ToString.Include(name = "friendsQuantity")
-    private String friends() {
-        return String.valueOf(friends.size());
     }
 
     public Map<String, Object> toMap() {

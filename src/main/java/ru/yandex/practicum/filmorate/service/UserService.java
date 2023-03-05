@@ -3,16 +3,17 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FriendsStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
     final private UserStorage userStorage;
+    final private FriendsStorage friendsStorage;
 
     public User create(User user) {
         validate(user);
@@ -32,33 +33,33 @@ public class UserService {
     public List<User> getAll() {
         return userStorage.getAll();
     }
+
     public void addFriend(long userId, long friendId) {
         User user = userStorage.get(userId);
         User friend = userStorage.get(friendId);
-        user.getFriends().add(friendId);
-        friend.getFriends().add(userId);
+        friendsStorage.addFriend(userId, friendId);
     }
 
     public void removeFriend(long userId, long friendId) {
         User user = userStorage.get(userId);
         User friend = userStorage.get(friendId);
-        user.getFriends().remove(friendId);
-        friend.getFriends().remove(userId);
+        friendsStorage.removeFriend(userId, friendId);
     }
 
     public List<User> getFriends(long userId) {
         final User user = userStorage.get(userId);
-        return user.getFriends().stream()
-                .map(userStorage::get).collect(Collectors.toList());
+        return friendsStorage.getFriendsIds(userId).stream()
+                .map(userStorage::get)
+                .collect(Collectors.toList());
     }
 
     public List<User> commonFriends(long userId, long friendId) {
-        Set<Long> userFriends = userStorage.get(userId).getFriends();
-        Set<Long> friendsFriends = userStorage.get(friendId).getFriends();
-        return userFriends.stream()
-                .filter(friendsFriends::contains)
-                .map(userStorage::get)
-                .collect(Collectors.toUnmodifiableList());
+        List<Long> userFriendsIds = friendsStorage.getFriendsIds(userId);
+        List<Long> friendsFriendsIds = friendsStorage.getFriendsIds(friendId);
+        userFriendsIds.retainAll(friendsFriendsIds);
+        return userFriendsIds.stream().
+                map(userStorage::get)
+                .collect(Collectors.toList());
     }
 
     public void validate(User user) {
