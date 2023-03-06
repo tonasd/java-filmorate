@@ -13,7 +13,9 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Repository
@@ -50,7 +52,7 @@ public class UserDaoImpl implements UserDao {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("users")
                 .usingGeneratedKeyColumns("user_id");
-        long id = simpleJdbcInsert.executeAndReturnKey(user.toMap()).longValue();
+        long id = simpleJdbcInsert.executeAndReturnKey(this.toMap(user)).longValue();
         return findUserById(id);
     }
 
@@ -80,6 +82,20 @@ public class UserDaoImpl implements UserDao {
             log.info("User with id {} is deleted", id);
         }
     }
+
+    public Map<String, Object> toMap(User user) {
+        Map<String, Object> values = new HashMap<>();
+        values.put("email", user.getEmail());
+        values.put("login", user.getLogin());
+        values.put("name", user.getName());
+        values.put("birthday", user.getBirthday());
+        if(user.getId() != 0) {
+            values.put("user_id", user.getId());
+        }
+        return values;
+    }
+
+
 
     private User mapRowToUser(ResultSet rs, int rowNumber) throws SQLException {
         long id = rs.getLong("user_id");

@@ -6,6 +6,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.FriendsDao;
+import ru.yandex.practicum.filmorate.exception.ItemNotFoundException;
 
 import java.util.List;
 
@@ -17,13 +18,15 @@ public class FriendsDaoImpl implements FriendsDao {
 
     @Override
     public void addFriend(long userIdRequestFrom, long friendIdRequestTo) {
+        userExists(userIdRequestFrom);
+        userExists(friendIdRequestTo);
         // check if it is a new friendship or approval
         final String sqlCheckApproved = "SELECT approved " +
                 "FROM friends " +
                 "WHERE user_id_request_from = ? AND user_id_request_to = ?";
         Boolean approved;
         try {
-               approved = jdbcTemplate.queryForObject(sqlCheckApproved, Boolean.class, friendIdRequestTo, userIdRequestFrom);
+            approved = jdbcTemplate.queryForObject(sqlCheckApproved, Boolean.class, friendIdRequestTo, userIdRequestFrom);
         } catch (EmptyResultDataAccessException e) {
             // it means that it is not approval. Needed to be created new friendship
             approved = null;
@@ -42,6 +45,8 @@ public class FriendsDaoImpl implements FriendsDao {
 
     @Override
     public void removeFriend(long userId, long friendId) {
+        userExists(userId);
+        userExists(friendId);
         final String sqlCheckApproved = "SELECT approved " +
                 "FROM friends " +
                 "WHERE user_id_request_from = ? AND user_id_request_to = ?";
@@ -62,7 +67,7 @@ public class FriendsDaoImpl implements FriendsDao {
                     "WHERE user_id_request_from = ? AND user_id_request_to = ?";
         } else { // here we need to create new line with contra versa to and from with approved = false (default in DB)
             jdbcTemplate.update("INSERT INTO friends (user_id_request_to, user_id_request_from) VALUES (?,?)",
-                        friendId, userId);
+                    friendId, userId);
             // and then delete original line
             sql = "DELETE FROM friends " +
                     "WHERE user_id_request_from = ? AND user_id_request_to = ?";
@@ -72,6 +77,7 @@ public class FriendsDaoImpl implements FriendsDao {
 
     @Override
     public List<Long> getFriendsIds(long userId) {
+        userExists(userId);
         final String sql = "SELECT user_id_request_to FROM FRIENDS WHERE user_id_request_from = ? " +
                 "UNION " +
                 "SELECT user_id_request_from FROM FRIENDS WHERE user_id_request_to = ? AND approved IS TRUE";
@@ -79,6 +85,20 @@ public class FriendsDaoImpl implements FriendsDao {
         log.info("Found {} friends", friendsIds.size());
         return friendsIds;
     }
+
+    private void userExists(long id) {
+        final String sql = "SELECT user_id " +
+                "FROM users " +
+                "WHERE user_id = ?";
+        try {
+            jdbcTemplate.queryForObject(sql, Long.class, id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new ItemNotFoundException(String.format("User with id %d not found", id));
+        }
+    }
+
+
+
 
 
 
