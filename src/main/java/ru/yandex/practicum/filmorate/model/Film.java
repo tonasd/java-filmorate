@@ -1,6 +1,10 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.NotEmpty;
@@ -8,15 +12,14 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
 @ToString(callSuper = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Film extends Item {
     @NotNull
     @NotEmpty(message = "Film's name cannot be empty")
@@ -27,23 +30,10 @@ public class Film extends Item {
     LocalDate releaseDate;
     @Positive
     int duration;
-    @ToString.Exclude
-    transient Set<Long> usersLiked = new HashSet<>();
-    @NotNull
-    String genre;
-    String rating; // MPA rating
+    List<Genre> genres;
+    Rating mpa; // MPA rating
 
-    public Film(Film film) {
-        this(film.name,
-                film.description,
-                film.releaseDate,
-                film.duration,
-                new HashSet<>(film.usersLiked),
-                film.genre,
-                film.rating);
-        this.id = film.id;
+    public Film() {
+        this.genres = new ArrayList<>();
     }
-
-    @ToString.Include(name = "Times liked")
-    public int timesLiked() { return usersLiked.size(); }
 }

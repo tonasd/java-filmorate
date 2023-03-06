@@ -83,7 +83,7 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
-    public Map<String, Object> toMap(User user) {
+    private Map<String, Object> toMap(User user) {
         Map<String, Object> values = new HashMap<>();
         values.put("email", user.getEmail());
         values.put("login", user.getLogin());
@@ -94,8 +94,6 @@ public class UserDaoImpl implements UserDao {
         }
         return values;
     }
-
-
 
     private User mapRowToUser(ResultSet rs, int rowNumber) throws SQLException {
         long id = rs.getLong("user_id");

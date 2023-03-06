@@ -18,7 +18,7 @@ public class FilmController{
 
     @PostMapping
     public Film create(@RequestBody @Valid Film film) {
-        service.create(film);
+        film = service.create(film);
         log.info("Created film: {}", film);
         return film;
     }
