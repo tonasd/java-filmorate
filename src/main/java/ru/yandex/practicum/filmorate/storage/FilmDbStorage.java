@@ -33,4 +33,14 @@ public class FilmDbStorage implements FilmStorage{
     public void update(Film film) {
         filmDao.updateFilm(film);
     }
+
+    @Override
+    public void addLike(long filmId, long userId) {
+        filmDao.addLike(filmId, userId);
+    }
+
+    @Override
+    public void removeLike(long filmId, long userId) {
+        filmDao.removeLike(filmId, userId);
+    }
 }

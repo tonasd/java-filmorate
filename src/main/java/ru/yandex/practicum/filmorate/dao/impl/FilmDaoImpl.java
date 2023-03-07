@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -93,6 +94,37 @@ public class FilmDaoImpl implements FilmDao {
         log.info("Found {} films", films.size());
 
         return films;
+    }
+
+    public void addLike(long filmId, long userId) {
+        final String sql = "INSERT INTO favorite_films(film_id, user_id) " +
+                "VALUES(?,?)";
+        try {
+            jdbcTemplate.update(sql, filmId, userId);
+        } catch (DataIntegrityViolationException e) {
+            throw new ItemNotFoundException(
+                    String.format(
+                            "Film with id=%d or user with id=%d does not exist",
+                            filmId,
+                            userId)
+            );
+        }
+    }
+
+    @Override
+    public void removeLike(long filmId, long userId) {
+        final String sql = "DELETE FROM favorite_films " +
+                "WHERE film_id = ? AND user_id = ?";
+        boolean isDeleted = jdbcTemplate.update(sql, filmId, userId) > 0;
+        if (!isDeleted) {
+            throw new ItemNotFoundException(
+                    String.format(
+                            "Like for film id=%d and user id=%d does not exist",
+                            filmId,
+                            userId)
+            );
+        }
+
     }
 
     private void insertGenres(long filmId, List<Genre> genres) {

@@ -9,4 +9,7 @@ public interface FilmStorage {
     List<Film> getAll();
     Film put(Film film);
     void update(Film film);
+    void addLike(long filmId, long userId);
+    void removeLike(long filmId, long userId);
+
 }
