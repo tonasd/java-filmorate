@@ -12,8 +12,10 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @ToString(callSuper = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@EqualsAndHashCode(callSuper = true)
 public class User extends Item {
     @NotEmpty
     @Email(message = "'${validatedValue}' is incorrect address")
@@ -26,10 +28,7 @@ public class User extends Item {
     LocalDate birthday;
 
     public User(long id,String email, String login, String name, LocalDate birthday) {
+        this(email, login, name, birthday);
         this.id = id;
-        this.email = email;
-        this.login = login;
-        this.name = name;
-        this.birthday = birthday;
     }
 }
