@@ -44,9 +44,7 @@ public class FilmService {
     }
 
     public List<Film> getPopular(int size) {
-        //Comparator<Film> cmp = Comparator.comparing(Film::timesLiked).reversed();
-        //return filmStorage.getAll().stream().sorted(cmp).limit(size).collect(Collectors.toList());
-        return List.of(new Film());
+        return filmStorage.getPopular(size);
     }
 
     private void validate(@NonNull Film film) {

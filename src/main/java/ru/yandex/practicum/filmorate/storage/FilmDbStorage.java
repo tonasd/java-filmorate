@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -9,7 +8,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.List;
 
 @Component
-@Primary
 @RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage{
     private final FilmDao filmDao;
@@ -42,5 +40,10 @@ public class FilmDbStorage implements FilmStorage{
     @Override
     public void removeLike(long filmId, long userId) {
         filmDao.removeLike(filmId, userId);
+    }
+
+    @Override
+    public List<Film> getPopular(int size) {
+        return filmDao.getMostPopular(size);
     }
 }

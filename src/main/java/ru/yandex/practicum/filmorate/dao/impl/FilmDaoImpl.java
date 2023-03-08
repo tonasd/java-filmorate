@@ -25,7 +25,6 @@ import java.util.Map;
 public class FilmDaoImpl implements FilmDao {
     private final JdbcTemplate jdbcTemplate;
 
-
     @Override
     public Film insertFilm(Film film) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
@@ -125,6 +124,21 @@ public class FilmDaoImpl implements FilmDao {
             );
         }
 
+    }
+
+    @Override
+    public List<Film> getMostPopular(int size) {
+        final String sql = "SELECT * " +
+                "FROM films AS f " +
+                "LEFT JOIN age_restriction_ratings AS r ON f.rating_id = r.rating_id " +
+                "LEFT JOIN favorite_films AS fav ON f.film_id = fav.film_id " +
+                "GROUP BY f.film_id " +
+                "ORDER BY COUNT(fav.user_id) DESC " +
+                "LIMIT ?";
+        List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm, size);
+
+        log.info("Given list of {} liked films", films.size());
+        return films;
     }
 
     private void insertGenres(long filmId, List<Genre> genres) {
