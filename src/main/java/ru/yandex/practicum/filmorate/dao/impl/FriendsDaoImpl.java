@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -10,7 +9,6 @@ import ru.yandex.practicum.filmorate.exception.ItemNotFoundException;
 
 import java.util.List;
 
-@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class FriendsDaoImpl implements FriendsDao {
@@ -81,9 +79,7 @@ public class FriendsDaoImpl implements FriendsDao {
         final String sql = "SELECT user_id_request_to FROM FRIENDS WHERE user_id_request_from = ? " +
                 "UNION " +
                 "SELECT user_id_request_from FROM FRIENDS WHERE user_id_request_to = ? AND approved IS TRUE";
-        List<Long> friendsIds = jdbcTemplate.queryForList(sql, Long.class, userId, userId);
-        log.info("Found {} friends", friendsIds.size());
-        return friendsIds;
+        return jdbcTemplate.queryForList(sql, Long.class, userId, userId);
     }
 
     private void userExists(long id) {

@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -17,7 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class UserDaoImpl implements UserDao {
@@ -34,7 +32,6 @@ public class UserDaoImpl implements UserDao {
         } catch (EmptyResultDataAccessException e) {
             throw new ItemNotFoundException(String.format("User with id %d not found", id));
         }
-        log.info("Found user: {} {}", user.getId(), user.getLogin());
         return user;
     }
 
@@ -42,9 +39,7 @@ public class UserDaoImpl implements UserDao {
     public List<User> getAllUsers() {
         final String sql = "SELECT * " +
                 "FROM users ";
-        List<User> users = jdbcTemplate.query(sql, this::mapRowToUser);
-        log.info("Found list of {} users", users.size());
-        return users;
+        return jdbcTemplate.query(sql, this::mapRowToUser);
     }
 
     @Override
@@ -61,26 +56,21 @@ public class UserDaoImpl implements UserDao {
         final String sql = "UPDATE users " +
                 "SET email = ?, login = ?, name = ?, birthday = ? " +
                 "WHERE user_id = ?";
-        boolean isUpdated = jdbcTemplate.update(sql,
+        jdbcTemplate.update(
+                sql,
                 user.getEmail(),
                 user.getLogin(),
                 user.getName(),
                 user.getBirthday(),
-                user.getId())
-                > 1;
-        if (isUpdated) {
-            log.info("User with id {} is updated", user.getId());
-        }
+                user.getId()
+        );
     }
 
     @Override
     public void deleteUserById(long id) {
         String sql = "DELETE FROM users " +
                 "WHERE user_id = ?";
-        boolean isDeleted = jdbcTemplate.update(sql, id) > 0;
-        if (isDeleted) {
-            log.info("User with id {} is deleted", id);
-        }
+        jdbcTemplate.update(sql, id);
     }
 
     private Map<String, Object> toMap(User user) {
@@ -89,7 +79,7 @@ public class UserDaoImpl implements UserDao {
         values.put("login", user.getLogin());
         values.put("name", user.getName());
         values.put("birthday", user.getBirthday());
-        if(user.getId() != 0) {
+        if (user.getId() != 0) {
             values.put("user_id", user.getId());
         }
         return values;

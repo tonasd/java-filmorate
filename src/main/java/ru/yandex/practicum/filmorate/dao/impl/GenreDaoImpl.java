@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -45,7 +46,7 @@ public class GenreDaoImpl implements GenreDao {
                 "LEFT JOIN genres AS g ON fg.genre_id = g.genre_id " +
                 "WHERE film_id = ? ";
         List<Genre> genres = jdbcTemplate.query(sql, this::mapRowToGenre, filmId);
-        return Set.copyOf(genres);
+        return new LinkedHashSet<>(genres);
     }
 
     public void insertGenresForFilmId(long filmId, Set<Genre> genres) {
