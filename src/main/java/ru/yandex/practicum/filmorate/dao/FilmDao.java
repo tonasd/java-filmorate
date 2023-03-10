@@ -5,8 +5,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.List;
 
 public interface FilmDao {
-    Film insertFilm(Film film);
-    Film updateFilm(Film film);
+    long insertFilm(Film film); //returns filmId
+    void updateFilm(Film film);
     Film findFilmById(long filmId);
     List<Film> getAllFilms();
     void addLike(long filmId, long userId);

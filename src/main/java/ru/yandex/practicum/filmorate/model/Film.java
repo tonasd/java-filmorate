@@ -9,8 +9,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -21,22 +21,18 @@ import java.util.List;
 public class Film extends Item {
     @NotNull
     @NotEmpty(message = "Film's name cannot be empty")
-    private
     String name;
     @NotNull @Size(max = 200)
-    private
     String description;
     @NotNull
-    private
     LocalDate releaseDate;
     @Positive
-    private
     int duration;
-    private List<Genre> genres;
-    private Rating mpa; // MPA rating
+    Set<Genre> genres;
+    Rating mpa; // MPA rating
 
     public Film() {
-        this.genres = new ArrayList<>();
+        this.genres = new LinkedHashSet<>();
     }
 
 

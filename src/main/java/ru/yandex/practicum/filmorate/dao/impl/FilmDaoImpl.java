@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.exception.ItemNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Rating;
 
 import java.sql.ResultSet;
@@ -26,22 +25,16 @@ public class FilmDaoImpl implements FilmDao {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public Film insertFilm(Film film) {
+    public long insertFilm(Film film) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("films")
                 .usingGeneratedKeyColumns("film_id");
         long id = simpleJdbcInsert.executeAndReturnKey(this.toMap(film)).longValue();
-        insertGenres(id, film.getGenres());
-
-        log.info("Added film with id={}", id);
-        return findFilm(id);
+        return id;
     }
 
     @Override
-    public Film updateFilm(Film film) {
-        long id = film.getId(); // to escape situation if new state of film have less genres than current DB state
-        deleteGenres(id);
-
+    public void updateFilm(Film film) {
         final String sql = "UPDATE films " +
                 "SET name = ?, description = ?, release_date = ?, duration = ?, rating_id = ? " +
                 "WHERE film_id = ?";
@@ -53,22 +46,10 @@ public class FilmDaoImpl implements FilmDao {
                 getRatingId(film),
                 film.getId()
         );
-
-        insertGenres(id, film.getGenres());
-
-        log.info("Film with id {} is updated", id);
-        return findFilm(id);
     }
 
     @Override
     public Film findFilmById(long filmId) {
-        Film film = findFilm(filmId);
-
-        log.info("Found film with id={}", film.getId());
-        return film;
-    }
-
-    private Film findFilm(long filmId) {
         final String sql = "SELECT * " +
                 "FROM films AS f " +
                 "LEFT JOIN age_restriction_ratings AS r ON f.rating_id = r.rating_id " +
@@ -79,7 +60,6 @@ public class FilmDaoImpl implements FilmDao {
         } catch (EmptyResultDataAccessException e) {
             throw new ItemNotFoundException(String.format("Film with id %d not found", filmId));
         }
-        film.setGenres(getGenres(filmId));
         return film;
     }
 
@@ -88,11 +68,7 @@ public class FilmDaoImpl implements FilmDao {
         final String sql = "SELECT * " +
                 "FROM films AS f " +
                 "LEFT JOIN age_restriction_ratings AS r ON f.rating_id = r.rating_id";
-        List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm);
-
-        log.info("Found {} films", films.size());
-
-        return films;
+        return jdbcTemplate.query(sql, this::mapRowToFilm);
     }
 
     public void addLike(long filmId, long userId) {
@@ -118,7 +94,7 @@ public class FilmDaoImpl implements FilmDao {
         if (!isDeleted) {
             throw new ItemNotFoundException(
                     String.format(
-                            "Like for film id=%d and user id=%d does not exist",
+                            "Not found film id=%d and/or user id=%d",
                             filmId,
                             userId)
             );
@@ -138,37 +114,7 @@ public class FilmDaoImpl implements FilmDao {
                 "   GROUP BY film_id) AS l ON f.film_id = l.film_id " +
                 "ORDER BY likes DESC " +
                 "LIMIT ?;";
-        List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm, size);
-
-        log.info("Given list of {} liked films", films.size());
-        return films;
-    }
-
-    private void insertGenres(long filmId, List<Genre> genres) {
-        final String sql = "INSERT INTO film_genre(film_id, genre_id) " +
-                "VALUES(?,?)";
-        int counter = 0;
-        for (Genre genre : genres) {
-            counter += jdbcTemplate.update(sql, filmId, genre.getId());
-        }
-        log.info("For film id={} added {} genres", filmId, counter);
-    }
-
-    private void deleteGenres(long filmId) {
-        final String sql = "DELETE FROM film_genre " +
-                "WHERE film_id = ?";
-        int counter = jdbcTemplate.update(sql, filmId);
-        log.info("For film id={} deleted {} genres", filmId, counter);
-    }
-
-    private List<Genre> getGenres(long filmId) {
-        final String sql = "SELECT fg.genre_id, name " +
-                "FROM film_genre AS fg " +
-                "LEFT JOIN genres AS g ON fg.genre_id = g.genre_id " +
-                "WHERE film_id = ? ";
-        List<Genre> genres = jdbcTemplate.query(sql, this::mapRowToGenre, filmId);
-        log.info("For film id={} received {} genres", filmId, genres.size());
-        return genres;
+        return jdbcTemplate.query(sql, this::mapRowToFilm, size);
     }
 
     private Film mapRowToFilm(ResultSet resultSet, int i) throws SQLException {
@@ -197,14 +143,6 @@ public class FilmDaoImpl implements FilmDao {
         return rating;
     }
 
-    private Genre mapRowToGenre(ResultSet rs, int rowNumber) throws SQLException {
-        Genre genre = new Genre();
-
-        genre.setId(rs.getInt("genre_id"));
-        genre.setName(rs.getString("name"));
-
-        return genre;
-    }
 
     private Map<String, Object> toMap(Film film) {
         Map<String, Object> values = new HashMap<>();
@@ -218,7 +156,7 @@ public class FilmDaoImpl implements FilmDao {
         return values;
     }
 
-    private Long getRatingId(Film film) {
+    private Integer getRatingId(Film film) {
         Rating rating = film.getMpa();
         return rating != null ? rating.getId() : null;
     }

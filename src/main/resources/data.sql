@@ -1,20 +1,26 @@
 -- fill genres
 INSERT INTO PUBLIC.GENRES (NAME)
-	VALUES ('Comedy');
+	VALUES ('Комедия');
 INSERT INTO PUBLIC.GENRES (NAME)
-	VALUES ('Horror');
+	VALUES ('Драма');
 INSERT INTO PUBLIC.GENRES (NAME)
-	VALUES ('Detective');
+	VALUES ('Мультфильм');
+INSERT INTO PUBLIC.GENRES (NAME)
+	VALUES ('Триллер');
+INSERT INTO PUBLIC.GENRES (NAME)
+	VALUES ('Документальный');
+INSERT INTO PUBLIC.GENRES (NAME)
+	VALUES ('Боевик');
 
 -- fill ratings
 INSERT INTO PUBLIC.AGE_RESTRICTION_RATINGS (RATING_BLOCK,RATING_DESCRIPTION)
-	VALUES ('GA','General Audience; Suitable for all ages.');
+	VALUES ('G','General Audience; All ages admitted.');
 INSERT INTO PUBLIC.AGE_RESTRICTION_RATINGS (RATING_BLOCK,RATING_DESCRIPTION)
-	VALUES ('PG','Parental Guidance.');
+	VALUES ('PG','Parental Guidance Suggested; Some material may not be suitable for children.');
 INSERT INTO PUBLIC.AGE_RESTRICTION_RATINGS (RATING_BLOCK,RATING_DESCRIPTION)
-	VALUES ('PG13','Parental Guidance 13; suitable for 13 years and older.');
+	VALUES ('PG-13','Parents Strongly Cautioned; Some material may be inappropriate for children under 13.');
 INSERT INTO PUBLIC.AGE_RESTRICTION_RATINGS (RATING_BLOCK,RATING_DESCRIPTION)
-	VALUES ('R','Suitable for 18 years and older.');
+	VALUES ('R','Restricted; Under 17 requires accompanying parent or adult guardian.');
 INSERT INTO PUBLIC.AGE_RESTRICTION_RATINGS (RATING_BLOCK,RATING_DESCRIPTION)
-	VALUES ('A','Adult Only; No-one under 18 admitted.');
+	VALUES ('NC-17','Adults Only; No one 17 and under admitted.');
 

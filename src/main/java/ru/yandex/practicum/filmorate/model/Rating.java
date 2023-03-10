@@ -9,9 +9,11 @@ import javax.validation.constraints.Size;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString(callSuper = true)
+@ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Rating extends Item {
+@EqualsAndHashCode
+public class Rating {
+    int id;
     @NotNull @Size(max = 32, min = 1)
     String name;
     @NotNull @Size(max = 255, min = 1)

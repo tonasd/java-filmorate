@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Rating;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.time.LocalDate;
@@ -24,7 +26,7 @@ public class FilmService {
     public Film update(Film film) {
         validate(film);
         filmStorage.update(film);
-        return film;
+        return filmStorage.get(film.getId());
     }
 
     public Film get(long filmId) {
@@ -45,6 +47,21 @@ public class FilmService {
 
     public List<Film> getPopular(int size) {
         return filmStorage.getPopular(size);
+    }
+
+    public Genre getGenre(int genreId) {
+        return filmStorage.getGenre(genreId);
+    }
+    public List<Genre> getAllGenres() {
+        return filmStorage.getAllGenres();
+    }
+
+    public List<Rating> getAllRatings() {
+        return filmStorage.getAllRatings();
+    }
+
+    public Rating getRating(int ratingId) {
+        return filmStorage.getRating(ratingId);
     }
 
     private void validate(@NonNull Film film) {

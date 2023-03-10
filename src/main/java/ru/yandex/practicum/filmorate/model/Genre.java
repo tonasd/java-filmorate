@@ -9,9 +9,11 @@ import javax.validation.constraints.Size;
 @Setter
 @Getter
 @NoArgsConstructor
-@ToString(callSuper = true)
+@ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Genre extends Item{
+@EqualsAndHashCode
+public class Genre {
+    int id;
     @NotNull @Size(max = 32, min = 1)
     String name;
 }
