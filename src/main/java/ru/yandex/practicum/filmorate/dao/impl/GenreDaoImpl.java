@@ -2,12 +2,14 @@ package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.GenreDao;
 import ru.yandex.practicum.filmorate.exception.ItemNotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedHashSet;
@@ -18,6 +20,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class GenreDaoImpl implements GenreDao {
     private final JdbcTemplate jdbcTemplate;
+
 
     @Override
     public Genre get(int genreId) {
@@ -50,9 +53,24 @@ public class GenreDaoImpl implements GenreDao {
     }
 
     public void insertGenresForFilmId(long filmId, Set<Genre> genres) {
-        final String sql = "INSERT INTO film_genre(film_id, genre_id) " +
-                "VALUES(?,?)";
-        genres.forEach((genre -> jdbcTemplate.update(sql, filmId, genre.getId())));
+        Genre[] genresArray = genres.toArray(new Genre[0]);
+        final String sql = "INSERT INTO film_genre(film_id, genre_id) VALUES(?, ?)";
+
+        jdbcTemplate.batchUpdate(
+                sql,
+                new BatchPreparedStatementSetter() {
+                    @Override
+                    public void setValues(PreparedStatement ps, int i) throws SQLException {
+                        ps.setLong(1, filmId);
+                        ps.setInt(2, genresArray[i].getId());
+                    }
+
+                    @Override
+                    public int getBatchSize() {
+                        return genresArray.length;
+                    }
+                }
+        );
     }
 
     public void deleteGenresForFilmId(long filmId) {
