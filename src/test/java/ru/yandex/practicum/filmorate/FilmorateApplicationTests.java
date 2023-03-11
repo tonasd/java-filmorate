@@ -7,9 +7,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
-import ru.yandex.practicum.filmorate.storage.FriendsDBStorage;
-import ru.yandex.practicum.filmorate.storage.UserDbStorage;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -22,9 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class FilmorateApplicationTests {
-	private final UserDbStorage userStorage;
-	private final FriendsDBStorage friendsStorage;
-	private final FilmDbStorage filmStorage;
+	private final UserService userService;
+	private final FilmService filmService;
 
 	static User user;
 	static User friend;
@@ -67,7 +65,7 @@ class FilmorateApplicationTests {
 	@Test
 	@Order(1)
 	void putUser() {
-		User userCreated = userStorage.put(user);
+		User userCreated = userService.create(user);
 		assertNotNull(userCreated, "putUser does not return correct object");
 		assertEquals(1, userCreated.getId(), "first created user must have id=1");
 		assertEquals(user.getLogin(), userCreated.getLogin(), "put add object with incorrect fields");
@@ -77,7 +75,7 @@ class FilmorateApplicationTests {
 	@Test
 	@Order(2)
 	void getUser() {
-		User actual = userStorage.get(user.getId());
+		User actual = userService.get(user.getId());
 		assertNotNull(actual, "user exist but not returned");
 		assertEquals(user.getId(), actual.getId(), "returned user id is incorrect");
 	}
@@ -85,10 +83,10 @@ class FilmorateApplicationTests {
 	@Test
 	@Order(3)
 	void getAllUsers() {
-		List<User> users = userStorage.getAll();
+		List<User> users = userService.getAll();
 		assertEquals(1, users.size(), "getAllUsers must return 1 user");
-		friend = userStorage.put(friend);
-		users = userStorage.getAll();
+		friend = userService.create(friend);
+		users = userService.getAll();
 		assertEquals(2, users.size(), "getAllUsers must return 2 users");
 
 	}
@@ -98,30 +96,30 @@ class FilmorateApplicationTests {
 	void updateUser() {
 		LocalDate updatedBirthday = LocalDate.of(1992, 1, 1);
 		user.setBirthday(updatedBirthday);
-		userStorage.update(user);
-		User updatedUser = userStorage.get(user.getId());
+		userService.update(user);
+		User updatedUser = userService.get(user.getId());
 		assertEquals(user, updatedUser, "User sent for update is not equal to result of update");
 	}
 
 	@Test
 	@Order(5)
 	void addFriendAndGetFriendsIds() {
-		friendsStorage.addFriend(user.getId(), friend.getId());
-		assertEquals(1, friendsStorage.getFriendsIds(user.getId()).size(), "user must have 1 friend");
-		assertEquals(0, friendsStorage.getFriendsIds(friend.getId()).size(), "user must have 0 friends");
+		userService.addFriend(user.getId(), friend.getId());
+		assertEquals(1, userService.getFriends(user.getId()).size(), "user must have 1 friend");
+		assertEquals(0, userService.getFriends(friend.getId()).size(), "user must have 0 friends");
 	}
 
 	@Test
 	@Order(6)
 	void removeFriend() {
-		friendsStorage.removeFriend(user.getId(), friend.getId());
-		assertEquals(0, friendsStorage.getFriendsIds(friend.getId()).size(), "user must have 0 friends");
+		userService.removeFriend(user.getId(), friend.getId());
+		assertEquals(0, userService.getFriends(friend.getId()).size(), "user must have 0 friends");
 	}
 
 	@Test
 	@Order(7)
 	void putFilm() {
-		Film createdFilm = filmStorage.put(film1);
+		Film createdFilm = filmService.create(film1);
 		assertNotNull(createdFilm, "putFilm does not return correct object");
 		assertEquals(1, createdFilm.getId(), "first created film must have id=1");
 		assertEquals(film1.getName(), createdFilm.getName(), "putFilm add object with incorrect fields");
@@ -131,7 +129,7 @@ class FilmorateApplicationTests {
 	@Test
 	@Order(8)
 	void getFilm() {
-		Film actual = filmStorage.get(film1.getId());
+		Film actual = filmService.get(film1.getId());
 		assertNotNull(actual, "film exist but not returned");
 		assertEquals(film1.getId(), actual.getId(), "returned film id is incorrect");
 	}
@@ -139,10 +137,10 @@ class FilmorateApplicationTests {
 	@Test
 	@Order(9)
 	void getAllFilms() {
-		List<Film> films = filmStorage.getAll();
+		List<Film> films = filmService.getAll();
 		assertEquals(1, films.size(), "getAllFilms must return 1 film");
-		film2 = filmStorage.put(film2);
-		films = filmStorage.getAll();
+		film2 = filmService.create(film2);
+		films = filmService.getAll();
 		assertEquals(2, films.size(), "getAllFilms must return 2 users");
 	}
 
@@ -150,32 +148,32 @@ class FilmorateApplicationTests {
 	@Order(10)
 	void updateFilm() {
 		film1.setDuration(60);
-		filmStorage.update(film1);
-		Film filmUpdated = filmStorage.get(film1.getId());
+		filmService.update(film1);
+		Film filmUpdated = filmService.get(film1.getId());
 		assertEquals(film1, filmUpdated, "Film sent for update is not equal to result of update");
 	}
 
 	@Test
 	@Order(11)
 	void addLike() {
-		filmStorage.addLike(film2.getId(), user.getId());
-		assertEquals(filmStorage.getPopular(1).get(0), film2);
+		filmService.addLike(film2.getId(), user.getId());
+		assertEquals(filmService.getPopular(1).get(0), film2);
 	}
 
 	@Test
 	@Order(12)
 	void getPopular() {
-		filmStorage.addLike(film1.getId(), user.getId());
-		filmStorage.addLike(film2.getId(), friend.getId());
-		List<Film> films = filmStorage.getPopular(10);
+		filmService.addLike(film1.getId(), user.getId());
+		filmService.addLike(film2.getId(), friend.getId());
+		List<Film> films = filmService.getPopular(10);
 		assertEquals(List.of(film2, film1), films);
 	}
 
 	@Test
 	@Order(13)
 	void removeLike() {
-		filmStorage.removeLike(film2.getId(), user.getId());
-		assertEquals(filmStorage.getPopular(1).get(0), film1);
+		filmService.removeLike(film2.getId(), user.getId());
+		assertEquals(filmService.getPopular(1).get(0), film1);
 	}
 
 
