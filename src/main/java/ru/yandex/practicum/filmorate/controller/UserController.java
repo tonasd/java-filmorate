@@ -18,14 +18,14 @@ public class UserController{
 
     @PostMapping
     public User create(@RequestBody @Valid User user) {
-        service.create(user);
+        user = service.create(user);
         log.info("Created user: {}", user);
         return user;
     }
 
     @PutMapping
     public User update(@RequestBody @Valid User user) {
-        service.update(user);
+        user = service.update(user);
         log.info("Updated user: {}", user);
         return user;
     }
@@ -47,7 +47,7 @@ public class UserController{
     @PutMapping("/{id}/friends/{friendId}")
     public void addFriend(@PathVariable Long id, @PathVariable Long friendId) {
         service.addFriend(id, friendId);
-        log.info("Users {} and {} now friends", id, friendId);
+        log.info("User {} added user {} in friends", id, friendId);
     }
 
     @DeleteMapping("{id}/friends/{friendId}")

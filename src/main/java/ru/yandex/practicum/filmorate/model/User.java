@@ -8,15 +8,14 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.PastOrPresent;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @ToString(callSuper = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@EqualsAndHashCode(callSuper = true)
 public class User extends Item {
     @NotEmpty
     @Email(message = "'${validatedValue}' is incorrect address")
@@ -27,16 +26,9 @@ public class User extends Item {
     String name;
     @PastOrPresent(message = "cannot be later than current date")
     LocalDate birthday;
-    @ToString.Exclude
-    private transient Set<Long> friends = new HashSet<>();
 
-    public User(User user) {
-        this(user.email, user.login, user.name, user.birthday, new HashSet<>(user.friends));
-        this.id = user.id;
-    }
-
-    @ToString.Include(name = "friendsQuantity")
-    private String friends() {
-        return String.valueOf(friends.size());
+    public User(long id,String email, String login, String name, LocalDate birthday) {
+        this(email, login, name, birthday);
+        this.id = id;
     }
 }

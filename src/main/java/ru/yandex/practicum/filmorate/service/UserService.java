@@ -2,67 +2,59 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.FriendsDao;
+import ru.yandex.practicum.filmorate.dao.UserDao;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    final private UserStorage storage;
-
-    private long nextId = 1;
+    final private UserDao userDao;
+    final private FriendsDao friendsDao;
 
     public User create(User user) {
         validate(user);
-        user.setId(nextId++);
-        storage.put(user);
-        return user;
+        return userDao.addUser(user);
     }
 
     public User update(User user) {
         validate(user);
-        storage.update(user);
-        return user;
+        userDao.updateUser(user);
+        return userDao.findUserById(user.getId());
     }
 
     public User get(long userId) {
-        return storage.get(userId);
+        return userDao.findUserById(userId);
     }
 
     public List<User> getAll() {
-        return storage.getAll();
+        return userDao.getAllUsers();
     }
+
     public void addFriend(long userId, long friendId) {
-        User user = storage.get(userId);
-        User friend = storage.get(friendId);
-        user.getFriends().add(friendId);
-        friend.getFriends().add(userId);
+        friendsDao.addFriend(userId, friendId);
     }
 
     public void removeFriend(long userId, long friendId) {
-        User user = storage.get(userId);
-        User friend = storage.get(friendId);
-        user.getFriends().remove(friendId);
-        friend.getFriends().remove(userId);
+        friendsDao.removeFriend(userId, friendId);
     }
 
     public List<User> getFriends(long userId) {
-        final User user = storage.get(userId);
-        return user.getFriends().stream()
-                .map(storage::get).collect(Collectors.toList());
+        return friendsDao.getFriendsIds(userId).stream()
+                .map(userDao::findUserById)
+                .collect(Collectors.toList());
     }
 
     public List<User> commonFriends(long userId, long friendId) {
-        Set<Long> userFriends = storage.get(userId).getFriends();
-        Set<Long> friendsFriends = storage.get(friendId).getFriends();
-        return userFriends.stream()
-                .filter(friendsFriends::contains)
-                .map(storage::get)
-                .collect(Collectors.toUnmodifiableList());
+        List<Long> userFriendsIds = friendsDao.getFriendsIds(userId);
+        List<Long> friendsFriendsIds = friendsDao.getFriendsIds(friendId);
+        userFriendsIds.retainAll(friendsFriendsIds);
+        return userFriendsIds.stream().
+                map(userDao::findUserById)
+                .collect(Collectors.toList());
     }
 
     public void validate(User user) {
