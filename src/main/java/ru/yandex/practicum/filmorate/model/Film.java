@@ -9,6 +9,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -29,10 +30,12 @@ public class Film extends Item {
     @Positive
     int duration;
     Set<Genre> genres;
+    Set<Director> directors;
     Rating mpa; // MPA rating
 
     public Film() {
         this.genres = new LinkedHashSet<>();
+        this.directors = new HashSet<>();
     }
 
 

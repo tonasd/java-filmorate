@@ -31,7 +31,7 @@ public class RatingDaoImpl implements RatingDao {
                 "WHERE rating_id = ?";
         Rating rating;
         try {
-           rating = jdbcTemplate.queryForObject(sql, this::mapRowToRating, ratingId);
+            rating = jdbcTemplate.queryForObject(sql, this::mapRowToRating, ratingId);
         } catch (EmptyResultDataAccessException e) {
             throw new ItemNotFoundException(String.format("Rating with id %d not found", ratingId));
         }

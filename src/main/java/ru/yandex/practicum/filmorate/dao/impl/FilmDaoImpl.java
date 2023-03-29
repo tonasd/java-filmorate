@@ -127,6 +127,30 @@ public class FilmDaoImpl implements FilmDao {
         }
     }
 
+    public List<Film> getFilmsOfDirectorSortedByLikes(int directorId) {
+        final String sql = "SELECT * " +
+                "FROM FILM_DIRECTOR AS fd " +
+                "JOIN FILMS AS f ON fd.film_id = f.film_id " +
+                "LEFT JOIN age_restriction_ratings AS r ON f.rating_id = r.rating_id " +
+                "LEFT JOIN " +
+                "  (SELECT film_id, " +
+                "          COUNT(user_id) AS likes " +
+                "   FROM favorite_films " +
+                "   GROUP BY film_id) AS l ON fd.film_id = l.film_id " +
+                "WHERE director_id = ? " +
+                "ORDER BY likes DESC";
+        return jdbcTemplate.query(sql, this::mapRowToFilm, directorId);
+    }
+
+    public List<Film> getFilmsOfDirector(int directorId) {
+        final String sql = "SELECT * " +
+                "FROM FILM_DIRECTOR AS fd " +
+                "JOIN FILMS AS f ON fd.film_id = f.film_id " +
+                "LEFT JOIN age_restriction_ratings AS r ON f.rating_id = r.rating_id " +
+                "WHERE director_id = ? ";
+        return jdbcTemplate.query(sql, this::mapRowToFilm, directorId);
+    }
+
     private Film mapRowToFilm(ResultSet resultSet, int i) throws SQLException {
         Film film = new Film();
 
