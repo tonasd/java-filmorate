@@ -52,8 +52,8 @@ public class UserService {
         List<Long> userFriendsIds = friendsDao.getFriendsIds(userId);
         List<Long> friendsFriendsIds = friendsDao.getFriendsIds(friendId);
         userFriendsIds.retainAll(friendsFriendsIds);
-        return userFriendsIds.stream().
-                map(userDao::findUserById)
+        return userFriendsIds.stream()
+                .map(userDao::findUserById)
                 .collect(Collectors.toList());
     }
 
