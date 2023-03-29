@@ -92,10 +92,4 @@ public class FriendsDaoImpl implements FriendsDao {
             throw new ItemNotFoundException(String.format("User with id %d not found", id));
         }
     }
-
-
-
-
-
-
 }

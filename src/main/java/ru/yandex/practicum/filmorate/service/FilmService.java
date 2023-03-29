@@ -59,7 +59,7 @@ public class FilmService {
 
     public List<Film> getPopular(int size) {
         List<Film> mostPopularFilms = filmDao.getMostPopular(size);
-        for (Film film: mostPopularFilms) {
+        for (Film film : mostPopularFilms) {
             film.setGenres(genreDao.getGenresForFilmId(film.getId()));
         }
         return mostPopularFilms;

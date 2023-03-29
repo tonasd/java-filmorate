@@ -27,7 +27,7 @@ public class User extends Item {
     @PastOrPresent(message = "cannot be later than current date")
     LocalDate birthday;
 
-    public User(long id,String email, String login, String name, LocalDate birthday) {
+    public User(long id, String email, String login, String name, LocalDate birthday) {
         this(email, login, name, birthday);
         this.id = id;
     }

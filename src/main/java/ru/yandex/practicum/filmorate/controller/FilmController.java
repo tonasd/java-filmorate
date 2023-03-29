@@ -13,7 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/films")
-public class FilmController{
+public class FilmController {
     private final FilmService service;
 
     @PostMapping
