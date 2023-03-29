@@ -13,7 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/films")
-public class FilmController{
+public class FilmController {
     private final FilmService service;
 
     @PostMapping
@@ -61,5 +61,11 @@ public class FilmController{
         final List<Film> popularList = service.getPopular(size);
         log.info("Get {} popular films request. Given {} films", size, popularList.size());
         return popularList;
+    }
+
+    @DeleteMapping(path = "/{filmId}")
+    public void deleteFilm(@PathVariable Long filmId) {
+        service.deleteFilmById(filmId);
+        log.info("Film with id: {} deleted", filmId);
     }
 }

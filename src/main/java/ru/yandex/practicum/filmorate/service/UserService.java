@@ -12,8 +12,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    final private UserDao userDao;
-    final private FriendsDao friendsDao;
+    private final UserDao userDao;
+    private final FriendsDao friendsDao;
 
     public User create(User user) {
         validate(user);
@@ -52,9 +52,13 @@ public class UserService {
         List<Long> userFriendsIds = friendsDao.getFriendsIds(userId);
         List<Long> friendsFriendsIds = friendsDao.getFriendsIds(friendId);
         userFriendsIds.retainAll(friendsFriendsIds);
-        return userFriendsIds.stream().
-                map(userDao::findUserById)
+        return userFriendsIds.stream()
+                .map(userDao::findUserById)
                 .collect(Collectors.toList());
+    }
+
+    public void deleteUserById(Long userId) {
+        userDao.deleteUserById(userId);
     }
 
     public void validate(User user) {

@@ -16,6 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RatingDaoImpl implements RatingDao {
     private final JdbcTemplate jdbcTemplate;
+
     @Override
     public List<Rating> getAll() {
         final String sql = "SELECT * " +

@@ -21,7 +21,6 @@ import java.util.Set;
 public class GenreDaoImpl implements GenreDao {
     private final JdbcTemplate jdbcTemplate;
 
-
     @Override
     public Genre get(int genreId) {
         final String sql = "SELECT genre_id, name " +
@@ -87,5 +86,4 @@ public class GenreDaoImpl implements GenreDao {
 
         return genre;
     }
-
 }

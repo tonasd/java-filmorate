@@ -58,7 +58,11 @@ public class FilmService {
     }
 
     public List<Film> getPopular(int size) {
-        return filmDao.getMostPopular(size);
+        List<Film> mostPopularFilms = filmDao.getMostPopular(size);
+        for (Film film : mostPopularFilms) {
+            film.setGenres(genreDao.getGenresForFilmId(film.getId()));
+        }
+        return mostPopularFilms;
     }
 
     public Genre getGenre(int genreId) {
@@ -75,6 +79,10 @@ public class FilmService {
 
     public Rating getRating(int ratingId) {
         return ratingDao.get(ratingId);
+    }
+
+    public void deleteFilmById(Long filmId) {
+        filmDao.deleteFilmById(filmId);
     }
 
     private void validate(@NonNull Film film) {

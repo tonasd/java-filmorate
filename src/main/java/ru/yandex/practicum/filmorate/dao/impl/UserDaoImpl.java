@@ -67,10 +67,14 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public void deleteUserById(long id) {
-        String sql = "DELETE FROM users " +
+    public void deleteUserById(long userId) {
+        final String sql = "DELETE FROM users " +
                 "WHERE user_id = ?";
-        jdbcTemplate.update(sql, id);
+        try {
+            jdbcTemplate.update(sql, userId);
+        } catch (EmptyResultDataAccessException e) {
+            throw new ItemNotFoundException(String.format("User with id %d not found", userId));
+        }
     }
 
     private Map<String, Object> toMap(User user) {

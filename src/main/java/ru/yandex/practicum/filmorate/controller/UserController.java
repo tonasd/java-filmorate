@@ -13,7 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/users")
-public class UserController{
+public class UserController {
     private final UserService service;
 
     @PostMapping
@@ -68,5 +68,11 @@ public class UserController{
         final List<User> commonFriends = service.commonFriends(id, otherId);
         log.info("Returned list of {} common friends for users {} and {}", commonFriends.size(), id, otherId);
         return commonFriends;
+    }
+
+    @DeleteMapping("/{userId}")
+    public void deleteUser(@PathVariable Long userId) {
+        service.deleteUserById(userId);
+        log.info("User with id: {} deleted", userId);
     }
 }
