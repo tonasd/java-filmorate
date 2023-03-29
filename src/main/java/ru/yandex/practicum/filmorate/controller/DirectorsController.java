@@ -14,7 +14,7 @@ import java.util.List;
 @RequestMapping(value = "/directors")
 @RequiredArgsConstructor
 public class DirectorsController {
-    final private DirectorService directorService;
+    private final DirectorService directorService;
 
     @PostMapping
     public Director create(@RequestBody @Valid Director director) {
