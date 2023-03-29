@@ -117,6 +117,17 @@ public class FilmDaoImpl implements FilmDao {
         return jdbcTemplate.query(sql, this::mapRowToFilm, size);
     }
 
+    @Override
+    public void deleteFilmById(long filmId) {
+        final String sql = "DELETE FROM films " +
+                "WHERE film_id = ?";
+        try {
+            jdbcTemplate.update(sql, filmId);
+        } catch (EmptyResultDataAccessException e) {
+            throw new ItemNotFoundException(String.format("Film with id %d not found", filmId));
+        }
+    }
+
     private Film mapRowToFilm(ResultSet resultSet, int i) throws SQLException {
         Film film = new Film();
 

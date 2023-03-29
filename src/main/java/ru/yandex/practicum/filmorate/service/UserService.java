@@ -57,6 +57,10 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    public void deleteUserById(Long userId) {
+        userDao.deleteUserById(userId);
+    }
+
     public void validate(User user) {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());

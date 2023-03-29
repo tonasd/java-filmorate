@@ -5,6 +5,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import ru.yandex.practicum.filmorate.exception.ItemNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -13,8 +14,7 @@ import ru.yandex.practicum.filmorate.service.UserService;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -176,9 +176,17 @@ class FilmorateApplicationTests {
 		assertEquals(filmService.getPopular(1).get(0), film1);
 	}
 
+	@Test
+	@Order(14)
+	void deleteFilmById() {
+		filmService.deleteFilmById(film1.getId());
+		assertThrows(ItemNotFoundException.class, () -> filmService.get(film1.getId()));
+	}
 
-
-
-
-
+	@Test
+	@Order(15)
+	void deleteUserById() {
+		userService.deleteUserById(user.getId());
+		assertThrows(ItemNotFoundException.class, () -> userService.get(user.getId()));
+	}
 }
