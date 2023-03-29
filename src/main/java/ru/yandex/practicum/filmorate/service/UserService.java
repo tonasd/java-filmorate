@@ -12,8 +12,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    final private UserDao userDao;
-    final private FriendsDao friendsDao;
+    private final UserDao userDao;
+    private final FriendsDao friendsDao;
 
     public User create(User user) {
         validate(user);

@@ -23,4 +23,3 @@ INSERT INTO PUBLIC.AGE_RESTRICTION_RATINGS (RATING_BLOCK,RATING_DESCRIPTION)
 	VALUES ('R','Restricted; Under 17 requires accompanying parent or adult guardian.');
 INSERT INTO PUBLIC.AGE_RESTRICTION_RATINGS (RATING_BLOCK,RATING_DESCRIPTION)
 	VALUES ('NC-17','Adults Only; No one 17 and under admitted.');
-
