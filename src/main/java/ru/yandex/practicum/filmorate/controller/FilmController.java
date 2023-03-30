@@ -3,7 +3,9 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.DirectorService;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
@@ -15,6 +17,7 @@ import java.util.List;
 @RequestMapping("/films")
 public class FilmController {
     private final FilmService service;
+    private final DirectorService directorService;
 
     @PostMapping
     public Film create(@RequestBody @Valid Film film) {
@@ -62,6 +65,15 @@ public class FilmController {
         log.info("Get {} popular films request. Given {} films", size, popularList.size());
         return popularList;
     }
+
+    @GetMapping(path = "/director/{directorId}")
+    public List<Film> getFilmsOfDirector(@PathVariable int directorId, @RequestParam(name = "sortBy") String sortBy) {
+        Director director = directorService.get(directorId);
+        List<Film> filmsOfDirector = service.getFilmsByDirector(directorId, sortBy);
+        log.info("Given {} films of director {} sorted by {}", filmsOfDirector.size(), director, sortBy);
+        return filmsOfDirector;
+    }
+
 
     @DeleteMapping(path = "/{filmId}")
     public void deleteFilm(@PathVariable Long filmId) {
