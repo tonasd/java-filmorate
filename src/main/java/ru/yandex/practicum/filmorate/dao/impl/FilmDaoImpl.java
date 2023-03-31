@@ -16,6 +16,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @Slf4j
@@ -23,6 +24,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class FilmDaoImpl implements FilmDao {
     private final JdbcTemplate jdbcTemplate;
+    private final DirectorDaoImpl directorDaoImpl;
+    private final GenreDaoImpl genreDaoImpl;
 
     @Override
     public long insertFilm(Film film) {
@@ -151,6 +154,7 @@ public class FilmDaoImpl implements FilmDao {
         return jdbcTemplate.query(sql, this::mapRowToFilm, directorId);
     }
 
+    @Override
     public List<Long> getRecommendedFilms(long userId) {
         String sql = "SELECT LIKES.FILM_ID FROM FAVORITE_FILMS AS LIKES " +
                 "WHERE USER_ID = " +
@@ -166,6 +170,47 @@ public class FilmDaoImpl implements FilmDao {
         return jdbcTemplate.queryForList(sql, Long.class, userId, userId, userId);
     }
 
+    @Override
+    public List<Film> searchFilms (String query, String by) {
+        String parametr;
+        switch (by) {
+            case "director":
+                parametr = "(LOWER(d.name) LIKE %s)";
+                parametr = String.format(parametr, "'%" + query.toLowerCase(Locale.ROOT) + "%'");
+                break;
+            case "title":
+                parametr = "(LOWER(f.name) LIKE %s)";
+                parametr = String.format(parametr, "'%" + query.toLowerCase(Locale.ROOT) + "%'");
+                break;
+            case "director,title":
+            case "title,director":
+                parametr = "(LOWER(d.name) LIKE %1$s) OR (LOWER(f.name) LIKE  %1$s)";
+                parametr = String.format(parametr, "'%" + query.toLowerCase(Locale.ROOT) + "%'");
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + by);
+        }
+
+        String sqlQuery =
+                "SELECT f.film_id, " +
+                        "f.name, " +
+                        "f.description, " +
+                        "f.release_date, " +
+                        "f.duration, " +
+                        "f.rating_id, " +
+                        "m.rating_block, " +
+                        "m.rating_description " +
+                "FROM FILMS AS f " +
+                "JOIN AGE_RESTRICTION_RATINGS AS m ON m.rating_id = f.rating_id " +
+                "LEFT JOIN FILM_DIRECTOR AS fd ON f.film_id = fd.film_id " +
+                "LEFT JOIN DIRECTORS AS d ON fd.director_id = d.director_id " +
+                "LEFT JOIN FAVORITE_FILMS AS l ON f.film_id = l.film_id " +
+                "WHERE " + parametr +
+                "GROUP BY f.film_id " +
+                "ORDER BY COUNT(l.user_id) DESC;";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToFilm);
+    }
+
     private Film mapRowToFilm(ResultSet resultSet, int i) throws SQLException {
         Film film = new Film();
 
@@ -175,6 +220,8 @@ public class FilmDaoImpl implements FilmDao {
         film.setReleaseDate(resultSet.getDate("release_date").toLocalDate());
         film.setDuration(resultSet.getInt("duration"));
         film.setMpa(mapRowToRating(resultSet, i));
+        film.setDirectors(directorDaoImpl.getDirectorsForFilmId(film.getId()));
+        film.setGenres(genreDaoImpl.getGenresForFilmId(film.getId()));
 
         return film;
     }

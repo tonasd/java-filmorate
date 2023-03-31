@@ -148,4 +148,8 @@ public class FilmService {
                 .map(this::getFilmWithGenresAndDirectors)
                 .collect(Collectors.toList());
     }
+
+    public List<Film> searchFilms(String query, String by) {
+        return filmDao.searchFilms(query, by);
+    }
 }
