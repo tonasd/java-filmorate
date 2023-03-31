@@ -83,12 +83,12 @@ public class ReviewDaoImpl implements ReviewDao {
 
     @Override
     public List<Review> getReviewsByFilmId(long filmId, int count) {
-        String GET_ALL_BY_ID1 = "SELECT * FROM REVIEWS ORDER BY USEFUL DESC LIMIT ?";
-        String GET_ALL_BY_ID2 = "SELECT * FROM REVIEWS WHERE FILM_ID=? ORDER BY USEFUL DESC LIMIT ?";
+        String sql1 = "SELECT * FROM REVIEWS ORDER BY USEFUL DESC LIMIT ?";
+        String sql2 = "SELECT * FROM REVIEWS WHERE FILM_ID=? ORDER BY USEFUL DESC LIMIT ?";
         if (filmId > 0) {
-            return jdbcTemplate.query(GET_ALL_BY_ID2, new ReviewRowMapper(), filmId, count);
+            return jdbcTemplate.query(sql2, new ReviewRowMapper(), filmId, count);
         } else {
-            return jdbcTemplate.query(GET_ALL_BY_ID1, new ReviewRowMapper(), count);
+            return jdbcTemplate.query(sql1, new ReviewRowMapper(), count);
         }
     }
 
