@@ -171,7 +171,7 @@ public class FilmDaoImpl implements FilmDao {
     }
 
     @Override
-    public List<Film> searchFilms (String query, String by) {
+    public List<Film> searchFilms(String query, String by) {
         String parametr;
         switch (by) {
             case "director":
