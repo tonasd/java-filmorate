@@ -16,9 +16,9 @@ public interface ReviewDao {
 
     List<Review> getReviewsByFilmId(long filmId, int count);
 
-    Review putLike(long reviewId, Long userId);
+    Review putLike(long reviewId, long userId);
 
-    Review putDislike(long reviewId, Long userId);
+    Review putDislike(long reviewId, long userId);
 
     void removeLike(long reviewId, long userId);
 

@@ -6,7 +6,7 @@ import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
+@NoArgsConstructor
 @EqualsAndHashCode(of = "reviewId") // Объект определяется только по полю id
 @ToString
 public class Review {

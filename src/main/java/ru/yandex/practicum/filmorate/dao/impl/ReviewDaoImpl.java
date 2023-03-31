@@ -1,8 +1,6 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -18,8 +16,6 @@ import ru.yandex.practicum.filmorate.service.UserService;
 import java.sql.PreparedStatement;
 import java.util.List;
 
-@Getter
-@Setter
 @Repository
 @RequiredArgsConstructor
 public class ReviewDaoImpl implements ReviewDao {
@@ -77,40 +73,27 @@ public class ReviewDaoImpl implements ReviewDao {
 
     @Override
     public Review getReviewById(long reviewId) throws ReviewNotFoundException {
-        if (isReviewExist(reviewId)) {
-            try {
-                String sql = "SELECT * FROM REVIEWS WHERE REVIEW_ID = ?";
-                return jdbcTemplate.queryForObject(sql, new ReviewRowMapper(), reviewId);
-            } catch (EmptyResultDataAccessException e) {
-                throw new ReviewNotFoundException("");
-            }
-        } else {
+        try {
+            String sql = "SELECT * FROM REVIEWS WHERE REVIEW_ID = ?";
+            return jdbcTemplate.queryForObject(sql, new ReviewRowMapper(), reviewId);
+        } catch (EmptyResultDataAccessException e) {
             throw new ReviewNotFoundException("Неверно указан id = " + reviewId + " отзыва");
         }
     }
 
     @Override
     public List<Review> getReviewsByFilmId(long filmId, int count) {
+        String GET_ALL_BY_ID1 = "SELECT * FROM REVIEWS ORDER BY USEFUL DESC LIMIT ?";
+        String GET_ALL_BY_ID2 = "SELECT * FROM REVIEWS WHERE FILM_ID=? ORDER BY USEFUL DESC LIMIT ?";
         if (filmId > 0) {
-            filmService.get(filmId);
-            String sql = "SELECT TOP ? * FROM REVIEWS WHERE FILM_ID = ? ORDER BY USEFUL DESC";
-            if (count != 0) {
-                return jdbcTemplate.query(sql, new ReviewRowMapper(), count, filmId);
-            } else {
-                return jdbcTemplate.query(sql, new ReviewRowMapper(), 10, filmId);
-            }
+            return jdbcTemplate.query(GET_ALL_BY_ID2, new ReviewRowMapper(), filmId, count);
         } else {
-            String sql = "SELECT TOP ? * FROM REVIEWS ORDER BY USEFUL DESC";
-            if (count != 0) {
-                return jdbcTemplate.query(sql, new ReviewRowMapper(), count);
-            } else {
-                return jdbcTemplate.query(sql, new ReviewRowMapper(), 10);
-            }
+            return jdbcTemplate.query(GET_ALL_BY_ID1, new ReviewRowMapper(), count);
         }
     }
 
     @Override
-    public Review putLike(long reviewId, Long userId) {
+    public Review putLike(long reviewId, long userId) {
         getReviewById(reviewId);
         userService.get(userId);
         String sqlLike = "INSERT INTO REVIEWS_USERS (REVIEW_ID, USER_ID) VALUES (?, ?)";
@@ -121,7 +104,7 @@ public class ReviewDaoImpl implements ReviewDao {
     }
 
     @Override
-    public Review putDislike(long reviewId, Long userId) {
+    public Review putDislike(long reviewId, long userId) {
         getReviewById(reviewId);
         userService.get(userId);
         String sqlLike = "INSERT INTO REVIEWS_USERS (REVIEW_ID, USER_ID) VALUES (?, ?)";

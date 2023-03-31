@@ -23,7 +23,7 @@ public class ReviewController {
     }
 
     @PutMapping
-    public Review updateReview(@RequestBody Review review) {
+    public Review updateReview(@RequestBody @Valid Review review) {
         log.info("Updated review: {}", review);
         return reviewService.update(review);
     }
@@ -44,6 +44,7 @@ public class ReviewController {
     @GetMapping
     public List<Review> getReviewsByFilmId(@RequestParam(defaultValue = "0") long filmId,
                                            @RequestParam(defaultValue = "10") int count) {
+        log.info("Found reviews of film with id {}", filmId);
         return reviewService.getReviewsByFilmId(filmId, count);
     }
 
@@ -56,21 +57,21 @@ public class ReviewController {
 
     @PutMapping("/{id}/dislike/{userId}")
     public Review putDislike(@PathVariable("id") long reviewId,
-                             @PathVariable("userId") Long userId) {
+                             @PathVariable("userId") long userId) {
         log.info("User with id {} put dislike to review with id {}", userId, reviewId);
         return reviewService.putDislike(reviewId, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public void removeLike(@PathVariable("id") long reviewId,
-                           @PathVariable("userId") Long userId) {
+                           @PathVariable("userId") long userId) {
         reviewService.removeLike(reviewId, userId);
         log.info("User with id {} remove like from review with id {}", userId, reviewId);
     }
 
     @DeleteMapping("/{id}/dislike/{userId}")
-    public void removeDislike(@PathVariable("id") Integer reviewId,
-                              @PathVariable("userId") Long userId) {
+    public void removeDislike(@PathVariable("id") int reviewId,
+                              @PathVariable("userId") long userId) {
         reviewService.removeDislike(reviewId, userId);
         log.info("User with id {} remove dislike from review with id {}", userId, reviewId);
     }
