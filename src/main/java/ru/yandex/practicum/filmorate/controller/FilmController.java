@@ -80,4 +80,10 @@ public class FilmController {
         service.deleteFilmById(filmId);
         log.info("Film with id: {} deleted", filmId);
     }
+
+    @GetMapping(path = "/search")
+    public List<Film> searchFilms(@RequestParam(name = "query") String query, @RequestParam(name = "by") String by) {
+        log.info("Movies searched");
+        return service.searchFilms(query, by);
+    }
 }

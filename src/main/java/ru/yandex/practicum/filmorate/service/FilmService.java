@@ -126,4 +126,8 @@ public class FilmService {
         film.setDirectors(directorDao.getDirectorsForFilmId(filmId));
         return film;
     }
+
+    public List<Film> searchFilms(String query, String by) {
+        return filmDao.searchFilms(query, by);
+    }
 }

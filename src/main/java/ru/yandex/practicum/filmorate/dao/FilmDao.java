@@ -24,4 +24,6 @@ public interface FilmDao {
     List<Film> getFilmsOfDirectorSortedByLikes(int directorId);
 
     void deleteFilmById(long filmId);
+
+    List<Film> searchFilms(String query, String by);
 }
