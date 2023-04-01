@@ -8,6 +8,9 @@ import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.GenreDao;
 import ru.yandex.practicum.filmorate.dao.RatingDao;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.EventOperation;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Rating;
@@ -26,6 +29,7 @@ public class FilmService {
     private final GenreDao genreDao;
     private final RatingDao ratingDao;
     private final DirectorDao directorDao;
+    private final FeedService feedService;
 
     public Film create(Film film) {
         validate(film);
@@ -59,10 +63,22 @@ public class FilmService {
 
     public void addLike(long filmId, long userId) {
         filmDao.addLike(filmId, userId);
+        feedService.addEvent(Event.builder()
+                .eventType(EventType.LIKE)
+                .operation(EventOperation.ADD)
+                .userId(userId)
+                .entityId(filmId)
+                .build());
     }
 
     public void removeLike(long filmId, long userId) {
         filmDao.removeLike(filmId, userId);
+        feedService.addEvent(Event.builder()
+                .eventType(EventType.LIKE)
+                .operation(EventOperation.REMOVE)
+                .userId(userId)
+                .entityId(filmId)
+                .build());
     }
 
     public List<Film> getPopular(int size) {
