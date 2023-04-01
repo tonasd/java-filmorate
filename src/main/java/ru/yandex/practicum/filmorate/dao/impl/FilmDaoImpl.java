@@ -151,6 +151,21 @@ public class FilmDaoImpl implements FilmDao {
         return jdbcTemplate.query(sql, this::mapRowToFilm, directorId);
     }
 
+    public List<Long> getRecommendedFilms(long userId) {
+        String sql = "SELECT LIKES.FILM_ID FROM FAVORITE_FILMS AS LIKES " +
+                "WHERE USER_ID = " +
+                "(SELECT USER_ID FROM FAVORITE_FILMS " +
+                "WHERE FILM_ID IN " +
+                "(SELECT FILM_ID FROM FAVORITE_FILMS WHERE USER_ID = ?) " +
+                "AND USER_ID <> ? " +
+                "GROUP BY USER_ID " +
+                "ORDER BY COUNT(FILM_ID) DESC " +
+                "LIMIT 1) " +
+                "AND LIKES.FILM_ID NOT IN " +
+                "(SELECT FILM_ID FROM FAVORITE_FILMS WHERE USER_ID = ?)";
+        return jdbcTemplate.queryForList(sql, Long.class, userId, userId, userId);
+    }
+
     private Film mapRowToFilm(ResultSet resultSet, int i) throws SQLException {
         Film film = new Film();
 

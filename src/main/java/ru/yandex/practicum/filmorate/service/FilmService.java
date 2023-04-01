@@ -126,4 +126,10 @@ public class FilmService {
         film.setDirectors(directorDao.getDirectorsForFilmId(filmId));
         return film;
     }
+
+    public List<Film> getRecommendations(Long userId) {
+        return filmDao.getRecommendedFilms(userId).stream()
+                .map(this::getFilmWithGenresAndDirectors)
+                .collect(Collectors.toList());
+    }
 }

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FriendsDao;
 import ru.yandex.practicum.filmorate.dao.UserDao;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 public class UserService {
     private final UserDao userDao;
     private final FriendsDao friendsDao;
+    private final FilmService filmService;
 
     public User create(User user) {
         validate(user);
@@ -65,5 +67,10 @@ public class UserService {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
+    }
+
+    public List<Film> getRecommendations(Long userId) {
+        userDao.findUserById(userId); // Checking user.
+        return filmService.getRecommendations(userId);
     }
 }
