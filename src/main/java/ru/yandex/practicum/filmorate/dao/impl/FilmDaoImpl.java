@@ -78,12 +78,7 @@ public class FilmDaoImpl implements FilmDao {
         try {
             jdbcTemplate.update(sql, filmId, userId);
         } catch (DataIntegrityViolationException e) {
-            throw new ItemNotFoundException(
-                    String.format(
-                            "Film with id=%d or user with id=%d does not exist",
-                            filmId,
-                            userId)
-            );
+            // случай повторного добавления, ничего не нужно делать и выбрасывать ошибки иначе не пройдёт тесты
         }
     }
 

@@ -3,17 +3,9 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dao.DirectorDao;
-import ru.yandex.practicum.filmorate.dao.FilmDao;
-import ru.yandex.practicum.filmorate.dao.GenreDao;
-import ru.yandex.practicum.filmorate.dao.RatingDao;
+import ru.yandex.practicum.filmorate.dao.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.Event;
-import ru.yandex.practicum.filmorate.model.EventOperation;
-import ru.yandex.practicum.filmorate.model.EventType;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Rating;
+import ru.yandex.practicum.filmorate.model.*;
 
 import java.lang.invoke.WrongMethodTypeException;
 import java.time.LocalDate;
@@ -30,6 +22,7 @@ public class FilmService {
     private final RatingDao ratingDao;
     private final DirectorDao directorDao;
     private final FeedService feedService;
+    private final UserDao userDao;
 
     public Film create(Film film) {
         validate(film);
@@ -62,6 +55,8 @@ public class FilmService {
     }
 
     public void addLike(long filmId, long userId) {
+        filmDao.findFilmById(filmId); //check that film exists
+        userDao.findUserById(userId); //check that user exists
         filmDao.addLike(filmId, userId);
         feedService.addEvent(Event.builder()
                 .eventType(EventType.LIKE)
@@ -72,6 +67,8 @@ public class FilmService {
     }
 
     public void removeLike(long filmId, long userId) {
+        filmDao.findFilmById(filmId); //check that film exists
+        userDao.findUserById(userId); //check that user exists
         filmDao.removeLike(filmId, userId);
         feedService.addEvent(Event.builder()
                 .eventType(EventType.LIKE)
