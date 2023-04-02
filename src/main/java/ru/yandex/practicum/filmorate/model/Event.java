@@ -1,14 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Getter
@@ -16,7 +9,6 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @ToString
 @EqualsAndHashCode
-@NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Event {

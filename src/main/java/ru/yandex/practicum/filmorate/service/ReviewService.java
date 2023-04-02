@@ -39,12 +39,12 @@ public class ReviewService {
     }
 
     public void removeReview(long reviewId) {
-        Review removeReview = getReviewById(reviewId);
+        Review removedReview = getReviewById(reviewId);
         reviewDao.removeReview(reviewId);
         feedService.addEvent(Event.builder()
                 .eventType(EventType.REVIEW)
                 .operation(EventOperation.REMOVE)
-                .userId(removeReview.getUserId())
+                .userId(removedReview.getUserId())
                 .entityId(reviewId)
                 .build());
     }

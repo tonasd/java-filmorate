@@ -76,8 +76,9 @@ public class UserController {
 
     @GetMapping("/{id}/feed")
     public List<Event> getUserEvents(@PathVariable int id) {
-        log.info("Event feed for user with id={} received", id);
-        return feedService.getByUserId(id);
+        final List<Event> userEvents = feedService.getByUserId(id);
+        log.info("The list of {} user events for users {} is returned.", userEvents.size(), id);
+        return userEvents;
     }
 
     @GetMapping("/{id}/recommendations")
