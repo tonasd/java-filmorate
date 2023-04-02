@@ -4,6 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FriendsDao;
 import ru.yandex.practicum.filmorate.dao.UserDao;
+import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.EventOperation;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -15,6 +18,7 @@ import java.util.stream.Collectors;
 public class UserService {
     private final UserDao userDao;
     private final FriendsDao friendsDao;
+    private final FeedService feedService;
     private final FilmService filmService;
 
     public User create(User user) {
@@ -38,10 +42,22 @@ public class UserService {
 
     public void addFriend(long userId, long friendId) {
         friendsDao.addFriend(userId, friendId);
+        feedService.addEvent(Event.builder()
+                .eventType(EventType.FRIEND)
+                .operation(EventOperation.ADD)
+                .userId(userId)
+                .entityId(friendId)
+                .build());
     }
 
     public void removeFriend(long userId, long friendId) {
         friendsDao.removeFriend(userId, friendId);
+        feedService.addEvent(Event.builder()
+                .eventType(EventType.FRIEND)
+                .operation(EventOperation.REMOVE)
+                .userId(userId)
+                .entityId(friendId)
+                .build());
     }
 
     public List<User> getFriends(long userId) {
