@@ -83,7 +83,8 @@ public class FilmController {
 
     @GetMapping(path = "/search")
     public List<Film> searchFilms(@RequestParam(name = "query") String query, @RequestParam(name = "by") String by) {
-        log.info("Movies searched");
-        return service.searchFilms(query, by);
+        List<Film> searchFilms = service.searchFilms(query, by);
+        log.info("For text {} searched in fields {} found {} films", query, by, searchFilms.size());
+        return searchFilms;
     }
 }

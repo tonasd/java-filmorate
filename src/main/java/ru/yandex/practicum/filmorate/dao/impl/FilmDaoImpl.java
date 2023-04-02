@@ -220,8 +220,6 @@ public class FilmDaoImpl implements FilmDao {
         film.setReleaseDate(resultSet.getDate("release_date").toLocalDate());
         film.setDuration(resultSet.getInt("duration"));
         film.setMpa(mapRowToRating(resultSet, i));
-        film.setDirectors(directorDaoImpl.getDirectorsForFilmId(film.getId()));
-        film.setGenres(genreDaoImpl.getGenresForFilmId(film.getId()));
 
         return film;
     }
