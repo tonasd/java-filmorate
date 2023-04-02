@@ -23,5 +23,7 @@ public interface FilmDao {
 
     List<Film> getFilmsOfDirectorSortedByLikes(int directorId);
 
+    public List<Long> getRecommendedFilms(long userId);
+
     void deleteFilmById(long filmId);
 }
