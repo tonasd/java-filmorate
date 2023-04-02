@@ -24,8 +24,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class FilmDaoImpl implements FilmDao {
     private final JdbcTemplate jdbcTemplate;
-    private final DirectorDaoImpl directorDaoImpl;
-    private final GenreDaoImpl genreDaoImpl;
 
     @Override
     public long insertFilm(Film film) {
