@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface DirectorDao {
-    Director get(int directorId);
+    Director get(long directorId);
 
     List<Director> getAll();
 
@@ -20,5 +20,5 @@ public interface DirectorDao {
 
     void update(Director director);
 
-    void delete(int id);
+    void delete(long id);
 }

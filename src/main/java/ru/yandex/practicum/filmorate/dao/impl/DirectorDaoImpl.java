@@ -44,7 +44,7 @@ public class DirectorDaoImpl implements DirectorDao {
     }
 
     @Override
-    public Director get(int directorId) {
+    public Director get(long directorId) {
         final String sql = "SELECT director_id, name " +
                 "FROM directors " +
                 "WHERE director_id = ? ";
@@ -65,7 +65,7 @@ public class DirectorDaoImpl implements DirectorDao {
     }
 
     @Override
-    public void delete(int id) {
+    public void delete(long id) {
         String sql = "DELETE FROM directors " +
                 "WHERE director_id = ?";
         boolean deleted = jdbcTemplate.update(sql, id) > 0;
@@ -93,7 +93,7 @@ public class DirectorDaoImpl implements DirectorDao {
                     @Override
                     public void setValues(PreparedStatement ps, int i) throws SQLException {
                         ps.setLong(1, filmId);
-                        ps.setInt(2, directorsArray[i].getId());
+                        ps.setLong(2, directorsArray[i].getId());
                     }
 
                     @Override
@@ -113,7 +113,7 @@ public class DirectorDaoImpl implements DirectorDao {
     private Director mapRowToDirector(ResultSet rs, int rowNumber) throws SQLException {
         Director director = new Director();
 
-        director.setId(rs.getInt("director_id"));
+        director.setId(rs.getLong("director_id"));
         director.setName(rs.getString("name"));
 
         return director;

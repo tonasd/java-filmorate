@@ -10,9 +10,8 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@EqualsAndHashCode
-public class Director {
-    int id;
+@EqualsAndHashCode(callSuper = true)
+public class Director extends Item {
     @NotBlank(message = "'${validatedValue}' is incorrect director name")
     String name;
 }
