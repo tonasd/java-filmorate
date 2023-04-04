@@ -151,9 +151,8 @@ public class FilmDaoImpl implements FilmDao {
     public List<Long> getRecommendedFilms(long userId) {
         String sql = " SELECT DISTINCT F.FILM_ID FROM FILMS AS F " +
                 "JOIN FAVORITE_FILMS FF on F.FILM_ID = FF.FILM_ID " +
-                "WHERE FF.USER_ID IN (SELECT DISTINCT FF2.USER_ID FROM FAVORITE_FILMS F1 " +
-                "JOIN FAVORITE_FILMS FF1 ON F1.FILM_ID = FF1.FILM_ID " +
-                "JOIN FAVORITE_FILMS FF2 ON FF1.FILM_ID = FF2.FILM_ID " +
+                "WHERE FF.USER_ID IN (SELECT DISTINCT FF2.USER_ID FROM FAVORITE_FILMS FF1 " +
+                "JOIN FAVORITE_FILMS FF2 ON FF2.FILM_ID = FF1.FILM_ID " +
                 "WHERE FF1.USER_ID = ?) " +
                 "AND F.FILM_ID NOT IN (SELECT FILM_ID FROM FAVORITE_FILMS WHERE USER_ID = ?)";
         return jdbcTemplate.queryForList(sql, Long.class, userId, userId);
