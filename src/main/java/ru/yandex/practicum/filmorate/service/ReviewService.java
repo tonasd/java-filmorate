@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.ReviewDao;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.EventOperation;
 import ru.yandex.practicum.filmorate.model.EventType;
@@ -17,6 +18,7 @@ public class ReviewService {
     private final FeedService feedService;
 
     public Review create(Review review) {
+        validate(review);
         Review createReview = reviewDao.create(review);
         feedService.addEvent(Event.builder()
                 .eventType(EventType.REVIEW)
@@ -28,6 +30,7 @@ public class ReviewService {
     }
 
     public Review update(Review review) {
+        validate(review);
         Review updateReview = reviewDao.update(review);
         feedService.addEvent(Event.builder()
                 .eventType(EventType.REVIEW)
@@ -71,5 +74,11 @@ public class ReviewService {
 
     public void removeDislike(long reviewId, Long userId) {
         reviewDao.removeDislike(reviewId, userId);
+    }
+
+    protected void validate(Review review) {
+        if (review.getContent() == null || review.getContent().isEmpty() || review.getContent().length() > 1024) {
+            throw new ValidationException("Review content invalid");
+        }
     }
 }
