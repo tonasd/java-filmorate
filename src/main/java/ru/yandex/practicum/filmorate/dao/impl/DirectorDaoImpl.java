@@ -88,7 +88,8 @@ public class DirectorDaoImpl implements DirectorDao {
         final String sql = "SELECT fd.director_id, name " +
                 "FROM film_director AS fd " +
                 "LEFT JOIN directors AS d ON fd.director_id = d.director_id " +
-                "WHERE film_id = ? ";
+                "WHERE d.IS_DELETED = false " +
+                "AND film_id = ? ";
         List<Director> directors = jdbcTemplate.query(sql, this::mapRowToDirector, filmId);
         return new HashSet<>(directors);
     }
