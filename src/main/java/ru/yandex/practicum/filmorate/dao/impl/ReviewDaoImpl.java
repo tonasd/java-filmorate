@@ -43,7 +43,7 @@ public class ReviewDaoImpl implements ReviewDao {
             String sql = "UPDATE REVIEWS SET " +
                     "IS_POSITIVE = ?, " +
                     "CONTENT = ? " +
-                    "WHERE REVIEW_ID = ?";
+                    "WHERE REVIEW_ID = ? AND NOT IS_DELETED";
             jdbcTemplate.update(sql,
                     review.getIsPositive(),
                     review.getContent(),
@@ -56,14 +56,14 @@ public class ReviewDaoImpl implements ReviewDao {
 
     @Override
     public void removeReview(long reviewId) {
-        String sql = "DELETE FROM REVIEWS WHERE REVIEW_ID = ?";
+        String sql = "UPDATE REVIEWS SET IS_DELETED = true WHERE REVIEW_ID = ?";
         jdbcTemplate.update(sql, reviewId);
     }
 
     @Override
     public Review getReviewById(long reviewId) throws ReviewNotFoundException {
         try {
-            String sql = "SELECT * FROM REVIEWS WHERE REVIEW_ID = ?";
+            String sql = "SELECT * FROM REVIEWS WHERE REVIEW_ID = ? AND NOT IS_DELETED";
             return jdbcTemplate.queryForObject(sql, this::mapRowToReview, reviewId);
         } catch (EmptyResultDataAccessException e) {
             throw new ReviewNotFoundException(String.format("Review with id %d not found", reviewId));
@@ -72,8 +72,8 @@ public class ReviewDaoImpl implements ReviewDao {
 
     @Override
     public List<Review> getReviewsByFilmId(long filmId, int count) {
-        String sql1 = "SELECT * FROM REVIEWS ORDER BY USEFUL DESC LIMIT ?";
-        String sql2 = "SELECT * FROM REVIEWS WHERE FILM_ID=? ORDER BY USEFUL DESC LIMIT ?";
+        String sql1 = "SELECT * FROM REVIEWS WHERE NOT IS_DELETED ORDER BY USEFUL DESC LIMIT ?";
+        String sql2 = "SELECT * FROM REVIEWS WHERE FILM_ID=? AND NOT IS_DELETED ORDER BY USEFUL DESC LIMIT ?";
         if (filmId > 0) {
             return jdbcTemplate.query(sql2, this::mapRowToReview, filmId, count);
         } else {

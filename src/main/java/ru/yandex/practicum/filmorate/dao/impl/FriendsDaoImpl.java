@@ -76,16 +76,22 @@ public class FriendsDaoImpl implements FriendsDao {
     @Override
     public List<Long> getFriendsIds(long userId) {
         userExists(userId);
-        final String sql = "SELECT user_id_request_to FROM FRIENDS WHERE user_id_request_from = ? " +
+        final String sql = "SELECT user_id_request_to " +
+                "FROM FRIENDS AS f " +
+                "JOIN users AS u ON f.user_id_request_to=u.user_id " +
+                "WHERE user_id_request_from = ? AND NOT u.IS_DELETED " +
                 "UNION " +
-                "SELECT user_id_request_from FROM FRIENDS WHERE user_id_request_to = ? AND approved IS TRUE";
+                "SELECT user_id_request_from " +
+                "FROM FRIENDS AS f " +
+                "JOIN users AS u ON f.user_id_request_from=u.user_id " +
+                "WHERE user_id_request_to = ? AND approved IS TRUE AND NOT u.IS_DELETED";
         return jdbcTemplate.queryForList(sql, Long.class, userId, userId);
     }
 
     private void userExists(long id) {
         final String sql = "SELECT user_id " +
                 "FROM users " +
-                "WHERE user_id = ?";
+                "WHERE user_id = ? AND NOT IS_DELETED";
         try {
             jdbcTemplate.queryForObject(sql, Long.class, id);
         } catch (EmptyResultDataAccessException e) {

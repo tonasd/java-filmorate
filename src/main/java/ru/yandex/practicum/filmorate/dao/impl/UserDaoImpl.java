@@ -4,11 +4,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.UserDao;
 import ru.yandex.practicum.filmorate.exception.ItemNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -25,7 +29,7 @@ public class UserDaoImpl implements UserDao {
     public User findUserById(long id) {
         final String sql = "SELECT * " +
                 "FROM users " +
-                "WHERE user_id = ?";
+                "WHERE user_id = ? AND NOT IS_DELETED";
         User user;
         try {
             user = jdbcTemplate.queryForObject(sql, this::mapRowToUser, id);
@@ -38,24 +42,33 @@ public class UserDaoImpl implements UserDao {
     @Override
     public List<User> getAllUsers() {
         final String sql = "SELECT * " +
-                "FROM users ";
+                "FROM users " +
+                "WHERE NOT IS_DELETED";
         return jdbcTemplate.query(sql, this::mapRowToUser);
     }
 
     @Override
     public User addUser(User user) {
-        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
-                .withTableName("users")
-                .usingGeneratedKeyColumns("user_id");
-        long id = simpleJdbcInsert.executeAndReturnKey(this.toMap(user)).longValue();
-        return findUserById(id);
+        String sql = "INSERT INTO users (email, login, name, birthday) VALUES (?, ?, ?, ?)";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement stmt = connection.prepareStatement(sql, new String[]{"user_id"});
+            stmt.setString(1, user.getEmail());
+            stmt.setString(2, user.getLogin());
+            stmt.setString(3, user.getName());
+            stmt.setDate(4, Date.valueOf(user.getBirthday()));
+            return stmt;
+        }, keyHolder);
+        long userId = keyHolder.getKey().longValue();
+        return findUserById(userId);
     }
 
     @Override
     public void updateUser(User user) {
         final String sql = "UPDATE users " +
                 "SET email = ?, login = ?, name = ?, birthday = ? " +
-                "WHERE user_id = ?";
+                "WHERE user_id = ? AND NOT IS_DELETED";
         jdbcTemplate.update(
                 sql,
                 user.getEmail(),
@@ -68,25 +81,13 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void deleteUserById(long userId) {
-        final String sql = "DELETE FROM users " +
+        final String sql = "UPDATE users SET IS_DELETED = true " +
                 "WHERE user_id = ?";
         try {
             jdbcTemplate.update(sql, userId);
         } catch (EmptyResultDataAccessException e) {
             throw new ItemNotFoundException(String.format("User with id %d not found", userId));
         }
-    }
-
-    private Map<String, Object> toMap(User user) {
-        Map<String, Object> values = new HashMap<>();
-        values.put("email", user.getEmail());
-        values.put("login", user.getLogin());
-        values.put("name", user.getName());
-        values.put("birthday", user.getBirthday());
-        if (user.getId() != 0) {
-            values.put("user_id", user.getId());
-        }
-        return values;
     }
 
     private User mapRowToUser(ResultSet rs, int rowNumber) throws SQLException {
