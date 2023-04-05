@@ -141,8 +141,10 @@ public class FilmService {
     }
 
     public List<Film> getRecommendations(Long userId) {
+        userDao.findUserById(userId);
         return filmDao.getRecommendedFilms(userId).stream()
-                .map(this::getFilmWithGenresAndDirectors)
+                .peek(film -> film.setGenres(genreDao.getGenresForFilmId(film.getId())))
+                .peek(film -> film.setDirectors(directorDao.getDirectorsForFilmId(film.getId())))
                 .collect(Collectors.toList());
     }
 
