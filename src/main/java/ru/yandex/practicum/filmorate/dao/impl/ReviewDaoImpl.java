@@ -6,9 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.ReviewDao;
-import ru.yandex.practicum.filmorate.dao.UserDao;
 import ru.yandex.practicum.filmorate.exception.ReviewNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 
@@ -21,13 +19,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReviewDaoImpl implements ReviewDao {
     private final JdbcTemplate jdbcTemplate;
-    private final UserDao userDao;
-    private final FilmDao filmDao;
 
     @Override
     public Review create(Review review) {
-        userDao.findUserById(review.getUserId());
-        filmDao.findFilmById(review.getFilmId());
         String sql = "INSERT INTO REVIEWS (USEFUL, IS_POSITIVE, CONTENT, USER_ID, FILM_ID) VALUES (?, ?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
@@ -62,7 +56,6 @@ public class ReviewDaoImpl implements ReviewDao {
 
     @Override
     public void removeReview(long reviewId) {
-        Review review = getReviewById(reviewId);
         String sql = "DELETE FROM REVIEWS WHERE REVIEW_ID = ?";
         jdbcTemplate.update(sql, reviewId);
     }
@@ -91,7 +84,6 @@ public class ReviewDaoImpl implements ReviewDao {
     @Override
     public Review putLike(long reviewId, long userId) {
         getReviewById(reviewId);
-        userDao.findUserById(userId);
         String sqlLike = "INSERT INTO REVIEWS_USERS (REVIEW_ID, USER_ID) VALUES (?, ?)";
         String sqlReviewUseful = "UPDATE REVIEWS SET USEFUL = USEFUL + 1 WHERE REVIEW_ID = ?";
         jdbcTemplate.update(sqlLike, reviewId, userId);
@@ -102,7 +94,6 @@ public class ReviewDaoImpl implements ReviewDao {
     @Override
     public Review putDislike(long reviewId, long userId) {
         getReviewById(reviewId);
-        userDao.findUserById(userId);
         String sqlLike = "INSERT INTO REVIEWS_USERS (REVIEW_ID, USER_ID) VALUES (?, ?)";
         String sqlReviewUseful = "UPDATE REVIEWS SET USEFUL = USEFUL - 1 WHERE REVIEW_ID = ?";
         jdbcTemplate.update(sqlLike, reviewId, userId);
@@ -113,7 +104,6 @@ public class ReviewDaoImpl implements ReviewDao {
     @Override
     public void removeLike(long reviewId, long userId) {
         getReviewById(reviewId);
-        userDao.findUserById(userId);
         String sqlLike = "DELETE FROM REVIEWS_USERS WHERE REVIEW_ID = ? AND USER_ID = ?";
         String sqlReviewUseful = "UPDATE REVIEWS SET USEFUL = USEFUL - 1 WHERE REVIEW_ID = ?";
         jdbcTemplate.update(sqlLike, reviewId, userId);
@@ -123,7 +113,6 @@ public class ReviewDaoImpl implements ReviewDao {
     @Override
     public void removeDislike(long reviewId, long userId) {
         getReviewById(reviewId);
-        userDao.findUserById(userId);
         String sqlLike = "DELETE FROM REVIEWS_USERS WHERE REVIEW_ID = ? AND USER_ID = ?";
         String sqlReviewUseful = "UPDATE REVIEWS SET USEFUL = USEFUL + 1 WHERE REVIEW_ID = ?";
         jdbcTemplate.update(sqlLike, reviewId, userId);
