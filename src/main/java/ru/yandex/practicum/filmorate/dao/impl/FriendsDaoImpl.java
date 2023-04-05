@@ -85,7 +85,7 @@ public class FriendsDaoImpl implements FriendsDao {
     private void userExists(long id) {
         final String sql = "SELECT user_id " +
                 "FROM users " +
-                "WHERE user_id = ?";
+                "WHERE user_id = ? AND (NOT IS_DELETED)";
         try {
             jdbcTemplate.queryForObject(sql, Long.class, id);
         } catch (EmptyResultDataAccessException e) {

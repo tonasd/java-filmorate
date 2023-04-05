@@ -5,11 +5,14 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.DirectorDao;
 import ru.yandex.practicum.filmorate.exception.ItemNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -25,11 +28,17 @@ public class DirectorDaoImpl implements DirectorDao {
 
     @Override
     public int create(Director director) {
-        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
-                .withTableName("directors")
-                .usingGeneratedKeyColumns("director_id");
-        int id = simpleJdbcInsert.executeAndReturnKey(Map.of("name", director.getName())).intValue();
-        return id;
+        String sql = "INSERT INTO directors (name) " +
+                "VALUES (?)";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement stmt = connection.prepareStatement(sql, new String[]{"director_id"});
+            stmt.setString(1, director.getName());
+
+            return stmt;
+        }, keyHolder);
+        return keyHolder.getKey().intValue();
     }
 
     @Override
@@ -47,7 +56,7 @@ public class DirectorDaoImpl implements DirectorDao {
     public Director get(long directorId) {
         final String sql = "SELECT director_id, name " +
                 "FROM directors " +
-                "WHERE director_id = ? ";
+                "WHERE director_id = ? AND (NOT IS_DELETED)";
         Director director;
         try {
             director = jdbcTemplate.queryForObject(sql, this::mapRowToDirector, directorId);
@@ -60,13 +69,14 @@ public class DirectorDaoImpl implements DirectorDao {
     @Override
     public List<Director> getAll() {
         final String sql = "SELECT director_id, name " +
-                "FROM directors ";
+                "FROM directors " +
+                "WHERE NOT IS_DELETED";
         return jdbcTemplate.query(sql, this::mapRowToDirector);
     }
 
     @Override
     public void delete(long id) {
-        String sql = "DELETE FROM directors " +
+        String sql = "UPDATE directors SET IS_DELETED = true " +
                 "WHERE director_id = ?";
         boolean deleted = jdbcTemplate.update(sql, id) > 0;
         if (!deleted) {
