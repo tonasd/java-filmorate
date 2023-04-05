@@ -50,7 +50,7 @@ public class ReviewDaoImpl implements ReviewDao {
                     review.getReviewId());
             return getReviewById(review.getReviewId());
         } catch (EmptyResultDataAccessException e) {
-            throw new ReviewNotFoundException("Неверно указан id = " + review.getReviewId() + " отзыва");
+            throw new ReviewNotFoundException(String.format("Review with id %d not found", review.getReviewId()));
         }
     }
 
@@ -66,7 +66,7 @@ public class ReviewDaoImpl implements ReviewDao {
             String sql = "SELECT * FROM REVIEWS WHERE REVIEW_ID = ?";
             return jdbcTemplate.queryForObject(sql, this::mapRowToReview, reviewId);
         } catch (EmptyResultDataAccessException e) {
-            throw new ReviewNotFoundException("Неверно указан id = " + reviewId + " отзыва");
+            throw new ReviewNotFoundException(String.format("Review with id %d not found", reviewId));
         }
     }
 
