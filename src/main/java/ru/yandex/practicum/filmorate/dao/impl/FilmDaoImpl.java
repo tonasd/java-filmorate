@@ -148,19 +148,22 @@ public class FilmDaoImpl implements FilmDao {
     }
 
     @Override
-    public List<Long> getRecommendedFilms(long userId) {
-        String sql = "SELECT LIKES.FILM_ID FROM FAVORITE_FILMS AS LIKES " +
-                "WHERE USER_ID = " +
-                "(SELECT USER_ID FROM FAVORITE_FILMS " +
-                "WHERE FILM_ID IN " +
-                "(SELECT FILM_ID FROM FAVORITE_FILMS WHERE USER_ID = ?) " +
-                "AND USER_ID <> ? " +
-                "GROUP BY USER_ID " +
-                "ORDER BY COUNT(FILM_ID) DESC " +
+    public List<Film> getRecommendedFilms(long userId) {
+        String sql = "SELECT f.*, r.* " +
+                "FROM FILMS f " +
+                "LEFT JOIN AGE_RESTRICTION_RATINGS AS r ON f.rating_id = r.rating_id " +
+                "JOIN FAVORITE_FILMS ff ON f.FILM_ID = ff.FILM_ID " +
+                "WHERE ff.USER_ID = ( " +
+                "SELECT ff2.USER_ID " +
+                "FROM FAVORITE_FILMS ff " +
+                "JOIN FAVORITE_FILMS ff2 ON ff.FILM_ID = ff2.FILM_ID " +
+                "WHERE ff.USER_ID = SET(@id,?) " +
+                "GROUP BY FF2.USER_ID " +
+                "HAVING FF2.USER_ID != @id " +
+                "ORDER BY COUNT(FF2.*)DESC " +
                 "LIMIT 1) " +
-                "AND LIKES.FILM_ID NOT IN " +
-                "(SELECT FILM_ID FROM FAVORITE_FILMS WHERE USER_ID = ?)";
-        return jdbcTemplate.queryForList(sql, Long.class, userId, userId, userId);
+                "AND f.FILM_ID NOT IN (SELECT FILM_ID FROM FAVORITE_FILMS WHERE USER_ID = @id)";
+        return jdbcTemplate.query(sql, this::mapRowToFilm, userId);
     }
 
     @Override

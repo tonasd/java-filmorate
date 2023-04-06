@@ -106,19 +106,19 @@ public class FilmService {
         filmDao.deleteFilmById(filmId);
     }
 
-    public List<Film> getFilmsByDirector(int directorId, String sortType) {
+    public List<Film> getFilmsByDirector(int directorId, SortBy sortBy) {
         List<Film> filmsOfDirector;
-        switch (sortType) {
-            case "year":
+        switch (sortBy) {
+            case YEAR:
                 filmsOfDirector = filmDao.getFilmsOfDirector(directorId).stream()
                         .sorted(Comparator.comparing(Film::getReleaseDate))
                         .collect(Collectors.toUnmodifiableList());
                 break;
-            case "likes":
+            case LIKES:
                 filmsOfDirector = filmDao.getFilmsOfDirectorSortedByLikes(directorId);
                 break;
             default:
-                throw new WrongMethodTypeException(sortType + " is unknown sortBy type");
+                throw new WrongMethodTypeException(sortBy + " is unknown sortBy type");
         }
 
         return filmsOfDirector.stream()
@@ -141,8 +141,10 @@ public class FilmService {
     }
 
     public List<Film> getRecommendations(Long userId) {
+        userDao.findUserById(userId);
         return filmDao.getRecommendedFilms(userId).stream()
-                .map(this::getFilmWithGenresAndDirectors)
+                .peek(film -> film.setGenres(genreDao.getGenresForFilmId(film.getId())))
+                .peek(film -> film.setDirectors(directorDao.getDirectorsForFilmId(film.getId())))
                 .collect(Collectors.toList());
     }
 

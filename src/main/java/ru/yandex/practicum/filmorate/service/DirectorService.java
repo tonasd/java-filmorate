@@ -16,7 +16,7 @@ public class DirectorService {
         return directorDao.getAll();
     }
 
-    public Director get(int id) {
+    public Director get(long id) {
         return directorDao.get(id);
     }
 
@@ -29,7 +29,7 @@ public class DirectorService {
         return directorDao.get(director.getId());
     }
 
-    public void delete(int id) {
+    public void delete(long id) {
         directorDao.delete(id);
     }
 }
