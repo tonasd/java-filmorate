@@ -16,7 +16,7 @@ import java.util.List;
 @RequestMapping("/mpa")
 @RequiredArgsConstructor
 public class RatingController {
-    final private FilmService filmService;
+    private final FilmService filmService;
 
     @GetMapping("/{id}")
     public Rating get(@PathVariable(value = "id") int ratingId) {

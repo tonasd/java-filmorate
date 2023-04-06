@@ -3,18 +3,24 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.WrongRequestParameterException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.SortBy;
+import ru.yandex.practicum.filmorate.service.DirectorService;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/films")
-public class FilmController{
+public class FilmController {
     private final FilmService service;
+    private final DirectorService directorService;
 
     @PostMapping
     public Film create(@RequestBody @Valid Film film) {
@@ -61,5 +67,33 @@ public class FilmController{
         final List<Film> popularList = service.getPopular(size);
         log.info("Get {} popular films request. Given {} films", size, popularList.size());
         return popularList;
+    }
+
+    @GetMapping(path = "/director/{directorId}")
+    public List<Film> getFilmsOfDirector(@PathVariable int directorId, @RequestParam(name = "sortBy") String sortBy) {
+        SortBy sortByEnum;
+        try {
+            sortByEnum = SortBy.valueOf(sortBy.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new WrongRequestParameterException(sortBy + " not one of possible" + Arrays.toString(SortBy.values()));
+        }
+        Director director = directorService.get(directorId);
+        List<Film> filmsOfDirector = service.getFilmsByDirector(directorId, sortByEnum);
+        log.info("Given {} films of director {} sorted by {}", filmsOfDirector.size(), director, sortBy);
+        return filmsOfDirector;
+    }
+
+
+    @DeleteMapping(path = "/{filmId}")
+    public void deleteFilm(@PathVariable Long filmId) {
+        service.deleteFilmById(filmId);
+        log.info("Film with id: {} deleted", filmId);
+    }
+
+    @GetMapping(path = "/search")
+    public List<Film> searchFilms(@RequestParam(name = "query") String query, @RequestParam(name = "by") String by) {
+        List<Film> searchFilms = service.searchFilms(query, by);
+        log.info("For text {} searched in fields {} found {} films", query, by, searchFilms.size());
+        return searchFilms;
     }
 }

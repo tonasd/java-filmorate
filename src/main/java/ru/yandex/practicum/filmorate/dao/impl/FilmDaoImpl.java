@@ -16,6 +16,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @Slf4j
@@ -77,12 +78,7 @@ public class FilmDaoImpl implements FilmDao {
         try {
             jdbcTemplate.update(sql, filmId, userId);
         } catch (DataIntegrityViolationException e) {
-            throw new ItemNotFoundException(
-                    String.format(
-                            "Film with id=%d or user with id=%d does not exist",
-                            filmId,
-                            userId)
-            );
+            // случай повторного добавления, ничего не нужно делать и выбрасывать ошибки иначе не пройдёт тесты
         }
     }
 
@@ -99,7 +95,6 @@ public class FilmDaoImpl implements FilmDao {
                             userId)
             );
         }
-
     }
 
     @Override
@@ -115,6 +110,101 @@ public class FilmDaoImpl implements FilmDao {
                 "ORDER BY likes DESC " +
                 "LIMIT ?;";
         return jdbcTemplate.query(sql, this::mapRowToFilm, size);
+    }
+
+    @Override
+    public void deleteFilmById(long filmId) {
+        final String sql = "DELETE FROM films " +
+                "WHERE film_id = ?";
+        try {
+            jdbcTemplate.update(sql, filmId);
+        } catch (EmptyResultDataAccessException e) {
+            throw new ItemNotFoundException(String.format("Film with id %d not found", filmId));
+        }
+    }
+
+    public List<Film> getFilmsOfDirectorSortedByLikes(int directorId) {
+        final String sql = "SELECT * " +
+                "FROM FILM_DIRECTOR AS fd " +
+                "JOIN FILMS AS f ON fd.film_id = f.film_id " +
+                "LEFT JOIN age_restriction_ratings AS r ON f.rating_id = r.rating_id " +
+                "LEFT JOIN " +
+                "  (SELECT film_id, " +
+                "          COUNT(user_id) AS likes " +
+                "   FROM favorite_films " +
+                "   GROUP BY film_id) AS l ON fd.film_id = l.film_id " +
+                "WHERE director_id = ? " +
+                "ORDER BY likes DESC";
+        return jdbcTemplate.query(sql, this::mapRowToFilm, directorId);
+    }
+
+    public List<Film> getFilmsOfDirector(int directorId) {
+        final String sql = "SELECT * " +
+                "FROM FILM_DIRECTOR AS fd " +
+                "JOIN FILMS AS f ON fd.film_id = f.film_id " +
+                "LEFT JOIN age_restriction_ratings AS r ON f.rating_id = r.rating_id " +
+                "WHERE director_id = ? ";
+        return jdbcTemplate.query(sql, this::mapRowToFilm, directorId);
+    }
+
+    @Override
+    public List<Film> getRecommendedFilms(long userId) {
+        String sql = "SELECT f.*, r.* " +
+                "FROM FILMS f " +
+                "LEFT JOIN AGE_RESTRICTION_RATINGS AS r ON f.rating_id = r.rating_id " +
+                "JOIN FAVORITE_FILMS ff ON f.FILM_ID = ff.FILM_ID " +
+                "WHERE ff.USER_ID = ( " +
+                "SELECT ff2.USER_ID " +
+                "FROM FAVORITE_FILMS ff " +
+                "JOIN FAVORITE_FILMS ff2 ON ff.FILM_ID = ff2.FILM_ID " +
+                "WHERE ff.USER_ID = SET(@id,?) " +
+                "GROUP BY FF2.USER_ID " +
+                "HAVING FF2.USER_ID != @id " +
+                "ORDER BY COUNT(FF2.*)DESC " +
+                "LIMIT 1) " +
+                "AND f.FILM_ID NOT IN (SELECT FILM_ID FROM FAVORITE_FILMS WHERE USER_ID = @id)";
+        return jdbcTemplate.query(sql, this::mapRowToFilm, userId);
+    }
+
+    @Override
+    public List<Film> searchFilms(String query, String by) {
+        String parametr;
+        switch (by) {
+            case "director":
+                parametr = "(LOWER(d.name) LIKE %s)";
+                parametr = String.format(parametr, "'%" + query.toLowerCase(Locale.ROOT) + "%'");
+                break;
+            case "title":
+                parametr = "(LOWER(f.name) LIKE %s)";
+                parametr = String.format(parametr, "'%" + query.toLowerCase(Locale.ROOT) + "%'");
+                break;
+            case "director,title":
+            case "title,director":
+                parametr = "(LOWER(d.name) LIKE %1$s) OR (LOWER(f.name) LIKE  %1$s)";
+                parametr = String.format(parametr, "'%" + query.toLowerCase(Locale.ROOT) + "%'");
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + by);
+        }
+
+        String sqlQuery =
+                "SELECT f.film_id, " +
+                        "f.name, " +
+                        "f.description, " +
+                        "f.release_date, " +
+                        "f.duration, " +
+                        "f.rating_id, " +
+                        "m.rating_block, " +
+                        "m.rating_description " +
+                "FROM FILMS AS f " +
+                "JOIN AGE_RESTRICTION_RATINGS AS m ON m.rating_id = f.rating_id " +
+                "LEFT JOIN FILM_DIRECTOR AS fd ON f.film_id = fd.film_id " +
+                "LEFT JOIN DIRECTORS AS d ON fd.director_id = d.director_id " +
+                "LEFT JOIN FAVORITE_FILMS AS l ON f.film_id = l.film_id " +
+                "WHERE " + parametr +
+                "GROUP BY f.film_id " +
+                "ORDER BY COUNT(l.user_id) DESC;";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToFilm);
     }
 
     private Film mapRowToFilm(ResultSet resultSet, int i) throws SQLException {

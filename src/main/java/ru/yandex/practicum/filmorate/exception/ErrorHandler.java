@@ -39,4 +39,18 @@ public class ErrorHandler {
         log.warn(e.toString());
         return Map.of("Unknown error", e.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    protected Map<String, String> handleNotFound(final ReviewNotFoundException e) {
+        log.warn(e.toString());
+        return Map.of("Could not find", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    protected Map<String, String> handleWrongRequestParameterException(final WrongRequestParameterException e) {
+        log.warn(e.toString());
+        return Map.of("Wrong request parameter ", e.getMessage());
+    }
 }

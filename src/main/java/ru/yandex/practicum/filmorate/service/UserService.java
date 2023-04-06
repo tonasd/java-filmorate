@@ -4,6 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FriendsDao;
 import ru.yandex.practicum.filmorate.dao.UserDao;
+import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.EventOperation;
+import ru.yandex.practicum.filmorate.model.EventType;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
@@ -12,8 +16,10 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    final private UserDao userDao;
-    final private FriendsDao friendsDao;
+    private final UserDao userDao;
+    private final FriendsDao friendsDao;
+    private final FeedService feedService;
+    private final FilmService filmService;
 
     public User create(User user) {
         validate(user);
@@ -36,10 +42,22 @@ public class UserService {
 
     public void addFriend(long userId, long friendId) {
         friendsDao.addFriend(userId, friendId);
+        feedService.addEvent(Event.builder()
+                .eventType(EventType.FRIEND)
+                .operation(EventOperation.ADD)
+                .userId(userId)
+                .entityId(friendId)
+                .build());
     }
 
     public void removeFriend(long userId, long friendId) {
         friendsDao.removeFriend(userId, friendId);
+        feedService.addEvent(Event.builder()
+                .eventType(EventType.FRIEND)
+                .operation(EventOperation.REMOVE)
+                .userId(userId)
+                .entityId(friendId)
+                .build());
     }
 
     public List<User> getFriends(long userId) {
@@ -52,14 +70,23 @@ public class UserService {
         List<Long> userFriendsIds = friendsDao.getFriendsIds(userId);
         List<Long> friendsFriendsIds = friendsDao.getFriendsIds(friendId);
         userFriendsIds.retainAll(friendsFriendsIds);
-        return userFriendsIds.stream().
-                map(userDao::findUserById)
+        return userFriendsIds.stream()
+                .map(userDao::findUserById)
                 .collect(Collectors.toList());
+    }
+
+    public void deleteUserById(Long userId) {
+        userDao.deleteUserById(userId);
     }
 
     public void validate(User user) {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
+    }
+
+    public List<Film> getRecommendations(Long userId) {
+        userDao.findUserById(userId); // Checking user.
+        return filmService.getRecommendations(userId);
     }
 }
