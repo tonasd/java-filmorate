@@ -28,24 +28,19 @@ public class DirectorDaoImpl implements DirectorDao {
 
     @Override
     public int create(Director director) {
-        String sql = "INSERT INTO directors (name) " +
-                "VALUES (?)";
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-
-        jdbcTemplate.update(connection -> {
-            PreparedStatement stmt = connection.prepareStatement(sql, new String[]{"director_id"});
-            stmt.setString(1, director.getName());
-
-            return stmt;
-        }, keyHolder);
-        return keyHolder.getKey().intValue();
+        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("directors")
+                .usingGeneratedKeyColumns("director_id")
+                .usingColumns("name");
+        int id = simpleJdbcInsert.executeAndReturnKey(Map.of("name", director.getName())).intValue();
+        return id;
     }
 
     @Override
     public void update(Director director) {
         final String sql = "UPDATE directors " +
                 "SET name = ? " +
-                "WHERE director_id = ?";
+                "WHERE director_id = ? AND NOT is_deleted";
         boolean updated = jdbcTemplate.update(sql, director.getName(), director.getId()) > 0;
         if (!updated) {
             throw new ItemNotFoundException(String.format("Director with id %d not found", director.getId()));
@@ -56,7 +51,7 @@ public class DirectorDaoImpl implements DirectorDao {
     public Director get(long directorId) {
         final String sql = "SELECT director_id, name " +
                 "FROM directors " +
-                "WHERE director_id = ? AND (NOT IS_DELETED)";
+                "WHERE director_id = ? AND NOT IS_DELETED";
         Director director;
         try {
             director = jdbcTemplate.queryForObject(sql, this::mapRowToDirector, directorId);

@@ -36,9 +36,9 @@ public class UserController {
 
     @GetMapping
     public List<User> getAll() {
-        final List<User> res = service.getAll();
-        log.info("Get all users request. Given {} objects.", res.size());
-        return res;
+        final List<User> users = service.getAll();
+        log.info("Get all users request. Given {} objects.", users.size());
+        return users;
     }
 
     @GetMapping("/{id}")

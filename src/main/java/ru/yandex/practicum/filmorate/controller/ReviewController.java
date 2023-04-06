@@ -18,14 +18,16 @@ public class ReviewController {
 
     @PostMapping
     public Review addReview(@RequestBody @Valid Review review) {
+        review = reviewService.create(review);
         log.info("Created review: {}", review);
-        return reviewService.create(review);
+        return review;
     }
 
     @PutMapping
     public Review updateReview(@RequestBody @Valid Review review) {
+        review = reviewService.update(review);
         log.info("Updated review: {}", review);
-        return reviewService.update(review);
+        return review;
     }
 
     @DeleteMapping("/{id}")
@@ -44,22 +46,25 @@ public class ReviewController {
     @GetMapping
     public List<Review> getReviewsByFilmId(@RequestParam(defaultValue = "0") long filmId,
                                            @RequestParam(defaultValue = "10") int count) {
-        log.info("Found reviews of film with id {}", filmId);
-        return reviewService.getReviewsByFilmId(filmId, count);
+        final List<Review> reviews = reviewService.getReviewsByFilmId(filmId, count);
+        log.info("Found {} reviews of film with id {}", reviews.size(), filmId);
+        return reviews;
     }
 
     @PutMapping("/{id}/like/{userId}")
     public Review putLike(@PathVariable("id") long reviewId,
                           @PathVariable("userId") long userId) {
+        final Review review = reviewService.putLike(reviewId, userId);
         log.info("User with id {} put like to review with id {}", userId, reviewId);
-        return reviewService.putLike(reviewId, userId);
+        return review;
     }
 
     @PutMapping("/{id}/dislike/{userId}")
     public Review putDislike(@PathVariable("id") long reviewId,
                              @PathVariable("userId") long userId) {
+        final Review review = reviewService.putDislike(reviewId, userId);
         log.info("User with id {} put dislike to review with id {}", userId, reviewId);
-        return reviewService.putDislike(reviewId, userId);
+        return review;
     }
 
     @DeleteMapping("/{id}/like/{userId}")

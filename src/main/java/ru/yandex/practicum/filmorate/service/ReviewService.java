@@ -37,14 +37,14 @@ public class ReviewService {
 
     public Review update(Review review) {
         validate(review);
-        Review updateReview = reviewDao.update(review);
+        Review updatedReview = reviewDao.update(review);
         feedService.addEvent(Event.builder()
                 .eventType(EventType.REVIEW)
                 .operation(EventOperation.UPDATE)
-                .userId(updateReview.getUserId())
-                .entityId(updateReview.getReviewId())
+                .userId(updatedReview.getUserId())
+                .entityId(updatedReview.getReviewId())
                 .build());
-        return updateReview;
+        return updatedReview;
     }
 
     public void removeReview(long reviewId) {

@@ -31,20 +31,12 @@ public class FilmDaoImpl implements FilmDao {
 
     @Override
     public long insertFilm(Film film) {
-        String sql = "INSERT INTO films (name, description, release_date, duration, rating_id) " +
-                "VALUES (?, ?, ?, ?, ?)";
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-
-        jdbcTemplate.update(connection -> {
-            PreparedStatement stmt = connection.prepareStatement(sql, new String[]{"film_id"});
-            stmt.setString(1, film.getName());
-            stmt.setString(2, film.getDescription());
-            stmt.setDate(3, Date.valueOf(film.getReleaseDate()));
-            stmt.setLong(4, film.getDuration());
-            stmt.setInt(5, film.getMpa().getId());
-            return stmt;
-        }, keyHolder);
-        return keyHolder.getKey().longValue();
+        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("films")
+                .usingGeneratedKeyColumns("film_id")
+                .usingColumns("description", "duration", "name", "release_date", "rating_id");
+        long id = simpleJdbcInsert.executeAndReturnKey(this.toMap(film)).longValue();
+        return id;
     }
 
     @Override
@@ -67,7 +59,7 @@ public class FilmDaoImpl implements FilmDao {
         final String sql = "SELECT * " +
                 "FROM films AS f " +
                 "LEFT JOIN age_restriction_ratings AS r ON f.rating_id = r.rating_id " +
-                "WHERE film_id = ? AND (NOT IS_DELETED)";
+                "WHERE film_id = ? AND NOT IS_DELETED";
         Film film;
         try {
             film = jdbcTemplate.queryForObject(sql, this::mapRowToFilm, filmId);
@@ -121,16 +113,16 @@ public class FilmDaoImpl implements FilmDao {
                 "          COUNT(user_id) AS likes " +
                 "   FROM favorite_films " +
                 "   GROUP BY film_id) AS l ON f.film_id = l.film_id " +
-                "WHERE (NOT f.IS_DELETED)" +
+                "WHERE NOT f.IS_DELETED " +
                 "ORDER BY likes DESC " +
-                "LIMIT ?;";
+                "LIMIT ?";
         return jdbcTemplate.query(sql, this::mapRowToFilm, size);
     }
 
     @Override
     public void deleteFilmById(long filmId) {
         final String sql = "UPDATE films SET IS_DELETED = true " +
-                "WHERE film_id = ?";
+                "WHERE film_id = ? AND NOT is_deleted";
         try {
             jdbcTemplate.update(sql, filmId);
         } catch (EmptyResultDataAccessException e) {
@@ -148,7 +140,7 @@ public class FilmDaoImpl implements FilmDao {
                 "          COUNT(user_id) AS likes " +
                 "   FROM favorite_films " +
                 "   GROUP BY film_id) AS l ON fd.film_id = l.film_id " +
-                "WHERE director_id = ? AND (NOT fd.IS_DELETED)" +
+                "WHERE director_id = ? AND NOT f.IS_DELETED " +
                 "ORDER BY likes DESC";
         return jdbcTemplate.query(sql, this::mapRowToFilm, directorId);
     }
@@ -158,7 +150,7 @@ public class FilmDaoImpl implements FilmDao {
                 "FROM FILM_DIRECTOR AS fd " +
                 "JOIN FILMS AS f ON fd.film_id = f.film_id " +
                 "LEFT JOIN age_restriction_ratings AS r ON f.rating_id = r.rating_id " +
-                "WHERE director_id = ? AND (NOT fd.IS_DELETED)";
+                "WHERE director_id = ? AND NOT f.IS_DELETED";
         return jdbcTemplate.query(sql, this::mapRowToFilm, directorId);
     }
 
@@ -177,7 +169,7 @@ public class FilmDaoImpl implements FilmDao {
                 "HAVING FF2.USER_ID != @id " +
                 "ORDER BY COUNT(FF2.*)DESC " +
                 "LIMIT 1) " +
-                "AND f.FILM_ID NOT IN (SELECT FILM_ID FROM FAVORITE_FILMS WHERE USER_ID = @id)";
+                "AND f.FILM_ID NOT IN (SELECT FILM_ID FROM FAVORITE_FILMS WHERE USER_ID = @id) AND NOT f.is_deleted";
         return jdbcTemplate.query(sql, this::mapRowToFilm, userId);
     }
 
@@ -216,7 +208,7 @@ public class FilmDaoImpl implements FilmDao {
                 "LEFT JOIN FILM_DIRECTOR AS fd ON f.film_id = fd.film_id " +
                 "LEFT JOIN DIRECTORS AS d ON fd.director_id = d.director_id " +
                 "LEFT JOIN FAVORITE_FILMS AS l ON f.film_id = l.film_id " +
-                "WHERE " + parametr +
+                "WHERE " + parametr + " AND NOT f.is_deleted " +
                 "GROUP BY f.film_id " +
                 "ORDER BY COUNT(l.user_id) DESC;";
         return jdbcTemplate.query(sqlQuery, this::mapRowToFilm);

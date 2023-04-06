@@ -28,6 +28,7 @@ public class UserService {
 
     public User update(User user) {
         validate(user);
+        userDao.findUserById(user.getId());
         userDao.updateUser(user);
         return userDao.findUserById(user.getId());
     }

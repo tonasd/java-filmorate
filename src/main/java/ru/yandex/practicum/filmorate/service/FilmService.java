@@ -82,6 +82,7 @@ public class FilmService {
         List<Film> mostPopularFilms = filmDao.getMostPopular(size);
         for (Film film : mostPopularFilms) {
             film.setGenres(genreDao.getGenresForFilmId(film.getId()));
+            film.setDirectors(directorDao.getDirectorsForFilmId(film.getId()));
         }
         return mostPopularFilms;
     }
@@ -141,7 +142,6 @@ public class FilmService {
     }
 
     public List<Film> getRecommendations(Long userId) {
-        userDao.findUserById(userId);
         return filmDao.getRecommendedFilms(userId).stream()
                 .peek(film -> film.setGenres(genreDao.getGenresForFilmId(film.getId())))
                 .peek(film -> film.setDirectors(directorDao.getDirectorsForFilmId(film.getId())))
