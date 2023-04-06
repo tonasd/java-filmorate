@@ -49,7 +49,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    protected Map<String, String> handleWrongRequestParameterException (final WrongRequestParameterException e) {
+    protected Map<String, String> handleWrongRequestParameterException(final WrongRequestParameterException e) {
         log.warn(e.toString());
         return Map.of("Wrong request parameter ", e.getMessage());
     }
